@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salud Materna - Citas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/appointments.css') }}">
+</head>
+
+<body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false, activeTab: 'solicitar' }">
+
+    <!-- Sidebar Overlay -->
+    <div class="lg:hidden fixed inset-0 bg-black/30 z-40" x-show="sidebarOpen" @click="sidebarOpen = false"
+        x-transition></div>
+
+    <!-- Sidebar -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 lg:translate-x-0">
+
+        <!-- Header Sidebar -->
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between lg:justify-start">
+            <div class="flex items-center gap-3">
+                <div class="logo-icon bg-pink-primary text-white rounded-full flex items-center justify-center">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-pink-primary font-bold leading-tight">Salud Materna</h2>
+                    <p class="text-xs text-gray-500">Paciente</p>
+                </div>
+            </div>
+            <button class="lg:hidden text-gray-400 hover:text-gray-600" @click="sidebarOpen = false">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-5 border-b border-gray-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-gray-800">María González</p>
+                <p class="text-xs text-gray-500">paciente@demo.com</p>
+            </div>
+        </div>
+
+        <!-- Navbar Menu -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <a href="/patient/dashboard"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i> Inicio
+            </a>
+            <a href="/patient/profile"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="file-text" class="w-5 h-5"></i> Mis Datos
+            </a>
+            <a href="/patient/specialists"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="users" class="w-5 h-5"></i> Especialistas
+            </a>
+            <a href="/patient/appointments"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-white bg-pink-primary rounded-lg transition-colors font-bold shadow-sm">
+                <i data-lucide="calendar" class="w-5 h-5"></i> Citas
+            </a>
+            <a href="/patient/chat"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Mensajes
+            </a>
+            <a href="/patient/articles"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="book-open" class="w-5 h-5"></i> Artículos
+            </a>
+            <a href="/patient/tips"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="help-circle" class="w-5 h-5"></i> Consejos
+            </a>
+            <a href="/patient/about"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="info" class="w-5 h-5"></i> Sobre Nosotros
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-4 border-t border-gray-100">
+            <a href="/login"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
+                <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
+
+        <!-- Mobile Header (Visible only on mobile) -->
+        <header class="lg:hidden bg-white h-16 border-b border-gray-100 flex items-center justify-between px-4 z-30">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-pink-primary rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                </div>
+                <h1 class="text-pink-primary font-bold">Salud Materna</h1>
+            </div>
+            <button @click="sidebarOpen = true" class="text-pink-primary">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-6xl mx-auto">
+
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold text-pink-primary mb-1">Gestión de Citas</h1>
+                    <p class="text-sm text-gray-500">Solicita y gestiona tus consultas médicas</p>
+                </div>
+
+                <!-- Tabs -->
+                <div
+                    class="inline-flex items-center gap-1 bg-gray-100 p-1 rounded-full mb-6 w-full max-w-sm border border-gray-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]">
+                    <button @click="activeTab = 'solicitar'"
+                        :class="activeTab === 'solicitar' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-700'"
+                        class="flex-1 py-1.5 text-xs rounded-full transition-all text-center focus:outline-none">
+                        Solicitar Cita
+                    </button>
+                    <button @click="activeTab = 'mis_citas'"
+                        :class="activeTab === 'mis_citas' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-700'"
+                        class="flex-1 py-1.5 text-xs rounded-full transition-all text-center focus:outline-none">
+                        Mis Citas
+                    </button>
+                </div>
+
+                <!-- Tab Request Appointment -->
+                <div x-show="activeTab === 'solicitar'"
+                    class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm w-full max-w-2xl"
+                    style="display: none;" x-transition>
+                    <h3 class="font-bold text-pink-primary mb-6">Nueva Solicitud de Cita</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-800 block mb-2">Especialista <span
+                                    class="text-red-500">*</span></label>
+                            <select
+                                class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary appearance-none border-none cursor-pointer">
+                                <option>Seleccione un especialista</option>
+                                <option>Dra. Ana Martínez (Ginecología)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-800 block mb-2">Fecha Preferida <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" placeholder="DD/MM/AAAA"
+                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary border-none">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-800 block mb-2">Hora Preferida <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" placeholder="HH:MM"
+                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary border-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-800 block mb-2">Motivo de la Consulta</label>
+                            <textarea rows="4" placeholder="Describa brevemente el motivo de su consulta"
+                                class="w-full bg-gray-50 p-4 rounded-lg text-sm text-gray-600 outline-none focus:ring-1 focus:ring-pink-primary border-none resize-none"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm outline-none hover:opacity-90 transition-opacity mt-4">
+                            Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab My Appointments -->
+                <div x-show="activeTab === 'mis_citas'" class="space-y-4 w-full" style="display: none;" x-transition>
+
+                    <!-- Approved 1 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-pink-primary">Dra. Ana Martínez</h3>
+                            <span
+                                class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i> Aprobada
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold">
+                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                    class="w-3.5 h-3.5 mt-px"></i> 15/03/2026</span>
+                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                    class="w-3.5 h-3.5 mt-px"></i> 10:00</span>
+                        </div>
+                        <div class="p-4 bg-pink-50 rounded-xl text-sm">
+                            <p class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
+                                <i data-lucide="video" class="w-4 h-4 text-pink-primary mt-0.5"></i> Enlace de
+                                videoconsulta:
+                            </p>
+                            <a href="#"
+                                class="text-pink-primary font-bold hover:underline">https://meet.google.com/abc-defg-hij</a>
+                        </div>
+                    </div>
+
+                    <!-- Approved 2 -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-pink-primary">Dr. Carlos Ramírez</h3>
+                            <span
+                                class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i> Aprobada
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold">
+                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                    class="w-3.5 h-3.5 mt-px"></i> 20/03/2026</span>
+                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                    class="w-3.5 h-3.5 mt-px"></i> 15:30</span>
+                        </div>
+                        <div class="p-4 bg-pink-50 rounded-xl text-sm">
+                            <p class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
+                                <i data-lucide="video" class="w-4 h-4 text-pink-primary mt-0.5"></i> Enlace de
+                                videoconsulta:
+                            </p>
+                            <a href="#"
+                                class="text-pink-primary font-bold hover:underline">https://meet.google.com/xyz-uvwx-yzw</a>
+                        </div>
+                    </div>
+
+                    <!-- New Proposal -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-orange-400"></div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-pink-primary">Dra. Laura Sánchez</h3>
+                            <span
+                                class="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-xs font-bold border border-orange-100">
+                                <i data-lucide="info" class="w-3 h-3"></i> Nueva Propuesta
+                            </span>
+                        </div>
+                        <div
+                            class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold line-through opacity-70">
+                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                    class="w-3.5 h-3.5 mt-px"></i> 18/03/2026</span>
+                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                    class="w-3.5 h-3.5 mt-px"></i> 11:00</span>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-4 text-sm text-gray-700">
+                            <p class="mb-2">Lo siento, ese horario no está disponible. ¿Te vendría bien el 22 de marzo a
+                                las 16:00?</p>
+                            <div class="flex items-center gap-4 text-xs font-bold text-orange-700">
+                                <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                        class="w-3.5 h-3.5 mt-px"></i> 22/03/2026</span>
+                                <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                        class="w-3.5 h-3.5 mt-px"></i> 16:00</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button
+                                class="flex-1 py-2 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Aceptar
+                                Nueva Fecha</button>
+                            <button
+                                class="flex-1 py-2 bg-white text-pink-primary border border-pink-primary text-sm font-bold rounded-lg hover:bg-pink-light transition-colors">Rechazar</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/appointments.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salud Materna - Sobre Nosotros</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+</head>
+
+<body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false }">
+
+    <!-- Sidebar Overlay -->
+    <div class="lg:hidden fixed inset-0 bg-black/30 z-40" x-show="sidebarOpen" @click="sidebarOpen = false"
+        x-transition></div>
+
+    <!-- Sidebar -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 lg:translate-x-0">
+        <!-- Header Sidebar -->
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between lg:justify-start">
+            <div class="flex items-center gap-3">
+                <div class="logo-icon bg-pink-primary text-white rounded-full flex items-center justify-center">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-pink-primary font-bold leading-tight">Salud Materna</h2>
+                    <p class="text-xs text-gray-500">Paciente</p>
+                </div>
+            </div>
+            <button class="lg:hidden text-gray-400 hover:text-gray-600" @click="sidebarOpen = false">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-5 border-b border-gray-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
+                <i data-lucide="user" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-gray-800">María González</p>
+                <p class="text-xs text-gray-500">paciente@demo.com</p>
+            </div>
+        </div>
+
+        <!-- Navbar Menu -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <a href="/patient/dashboard"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="layout-grid" class="w-5 h-5"></i> Inicio
+            </a>
+            <a href="/patient/profile"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="file-text" class="w-5 h-5"></i> Mis Datos
+            </a>
+            <a href="/patient/specialists"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="users" class="w-5 h-5"></i> Especialistas
+            </a>
+            <a href="/patient/appointments"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="calendar" class="w-5 h-5"></i> Citas
+            </a>
+            <a href="/patient/chat"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Mensajes
+            </a>
+            <a href="/patient/articles"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="book-open" class="w-5 h-5"></i> Artículos
+            </a>
+            <a href="/patient/tips"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="help-circle" class="w-5 h-5"></i> Consejos
+            </a>
+            <a href="/patient/about"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-white bg-pink-primary rounded-lg transition-colors font-bold shadow-sm">
+                <i data-lucide="info" class="w-5 h-5"></i> Sobre Nosotros
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-4 border-t border-gray-100">
+            <a href="/login"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
+                <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
+
+        <!-- Mobile Header -->
+        <header class="lg:hidden bg-white h-16 border-b border-gray-100 flex items-center justify-between px-4 z-30">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-pink-primary rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="heart" class="w-4 h-4"></i>
+                </div>
+                <h1 class="text-pink-primary font-bold">Salud Materna</h1>
+            </div>
+            <button @click="sidebarOpen = true" class="text-pink-primary">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold text-pink-primary mb-1">Sobre Nosotros</h1>
+                    <p class="text-sm text-gray-500">Conoce nuestra misión y compromiso con la salud materna</p>
+                </div>
+
+                <!-- Main Top Card -->
+                <div
+                    class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm mb-6 flex items-start gap-6 hover:shadow-md transition-shadow">
+                    <div
+                        class="w-16 h-16 rounded-full bg-pink-primary text-white flex-shrink-0 flex items-center justify-center">
+                        <i data-lucide="heart" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">Salud Materna Juvenil</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            Somos una plataforma digital dedicada a proporcionar atención médica especializada y
+                            recursos educativos para madres jóvenes y futuras madres. Nuestro objetivo es hacer
+                            accesible información de calidad y conectar a pacientes con profesionales de la salud
+                            especializados en medicina materno-infantil.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Misión -->
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-1 transition-transform duration-300">
+                        <div
+                            class="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center mb-5">
+                            <i data-lucide="target" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-pink-primary mb-3">Nuestra Misión</h3>
+                        <p class="text-sm text-gray-600">Empoderar a las madres jóvenes con información confiable y
+                            acceso a atención médica de calidad durante el embarazo, parto y postparto.</p>
+                    </div>
+
+                    <!-- Equipo -->
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-1 transition-transform duration-300">
+                        <div
+                            class="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center mb-5">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-pink-primary mb-3">Nuestro Equipo</h3>
+                        <p class="text-sm text-gray-600">Contamos con un equipo multidisciplinario de ginecólogos,
+                            obstetras, pediatras neonatales y especialistas en salud mental materna.</p>
+                    </div>
+
+                    <!-- Valores -->
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-1 transition-transform duration-300">
+                        <div
+                            class="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center mb-5">
+                            <i data-lucide="award" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-pink-primary mb-3">Nuestros Valores</h3>
+                        <p class="text-sm text-gray-600">Profesionalismo, empatía, accesibilidad y excelencia médica son
+                            los pilares que guían nuestra atención.</p>
+                    </div>
+
+                    <!-- Compromiso -->
+                    <div
+                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-1 transition-transform duration-300">
+                        <div
+                            class="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center mb-5">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-pink-primary mb-3">Nuestro Compromiso</h3>
+                        <p class="text-sm text-gray-600">Garantizar atención médica de calidad, respetuosa y centrada en
+                            las necesidades únicas de cada madre y su bebé.</p>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/about.js') }}"></script>
+</body>
+
+</html>

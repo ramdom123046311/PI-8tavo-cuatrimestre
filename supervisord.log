@@ -1,0 +1,16 @@
+2026-03-07 08:58:17,516 INFO Set uid to user 0 succeeded
+2026-03-07 08:58:17,522 INFO supervisord started with pid 1
+2026-03-07 08:58:18,524 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:18,525 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:18,528 INFO spawned: 'laravel' with pid 7
+2026-03-07 08:58:19,566 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:19,568 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:19,570 INFO success: laravel entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-07 08:58:21,576 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:21,578 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:24,584 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:24,584 INFO gave up: fastapi entered FATAL state, too many start retries too quickly
+2026-03-07 08:58:24,586 INFO spawnerr: can't find command '/app/venv/bin/python'
+2026-03-07 08:58:24,586 INFO gave up: flask entered FATAL state, too many start retries too quickly
+2026-03-07 09:08:46,717 WARN received SIGTERM indicating exit request
+2026-03-07 09:08:46,720 INFO waiting for laravel to die

@@ -1,0 +1,139 @@
+body {
+    background-color: #FFF5F7;
+    font-family: 'Nunito', sans-serif;
+}
+
+.text-pink {
+    color: #D81B60;
+}
+
+.bg-pink {
+    background-color: #D81B60;
+}
+
+.border-pink {
+    border-color: #D81B60 !important;
+}
+
+.btn-outline-pink {
+    color: #D81B60;
+    border-color: #D81B60;
+}
+
+.btn-outline-pink:hover {
+    background-color: #FFF5F7;
+    color: #D81B60;
+    border-color: #D81B60;
+}
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.main-content {
+    margin-left: 260px;
+}
+
+.nav-link {
+    color: #4b5563;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+}
+
+.nav-link:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.nav-link.active {
+    background-color: #D81B60 !important;
+    color: white !important;
+}
+
+.icon-xs {
+    width: 1rem;
+    height: 1rem;
+}
+
+.icon-sm {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.icon-md {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.icon-lg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.bg-light-pink {
+    background-color: #FFF5F7;
+}
+
+.bg-light-primary {
+    background-color: #e0f2fe;
+}
+
+.text-primary {
+    color: #0284c7;
+}
+
+.btn-success {
+    background-color: #22c55e;
+    border-color: #22c55e;
+}
+
+.btn-success:hover {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+.btn-outline-danger {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.btn-outline-danger:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.avatar-bg {
+    width: 60px;
+    height: 60px;
+}
+
+.info-pill {
+    background-color: #FFF5F7 !important;
+    min-width: 150px;
+}
+
+.document-badge.bg-light {
+    background-color: #FFF5F7 !important;
+}
+
+.action-buttons {
+    min-width: 200px;
+}
+
+.action-buttons .btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}

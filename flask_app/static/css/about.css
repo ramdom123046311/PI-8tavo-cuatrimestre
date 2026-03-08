@@ -1,0 +1,28 @@
+/* about.css */
+body {
+    background-color: #FFF5F7 !important;
+}
+
+.bg-pink-light {
+    background-color: #FFF5F7 !important;
+}
+
+.bg-pink-primary {
+    background-color: #D81B60 !important;
+}
+
+.text-pink-primary {
+    color: #D81B60 !important;
+}
+
+.text-pink-600 {
+    color: #db2777 !important;
+}
+
+.bg-pink-50 {
+    background-color: #fdf2f8 !important;
+}
+
+.border-pink-primary {
+    border-color: #D81B60 !important;
+}

@@ -1,0 +1,33 @@
+/* registro_usuario.css */
+body {
+    background-color: #FFF5F7;
+}
+
+.bg-pink-light {
+    background-color: #FFF5F7 !important;
+}
+
+.bg-pink-primary {
+    background-color: #D81B60 !important;
+}
+
+.text-pink-primary {
+    color: #D81B60 !important;
+}
+
+.border-pink-primary {
+    border-color: #D81B60 !important;
+}
+
+.hover\:bg-pink-primary:hover {
+    background-color: #D81B60 !important;
+}
+
+.focus\:ring-pink-primary:focus {
+    --tw-ring-color: #D81B60 !important;
+}
+
+.logo-icon {
+    width: 64px;
+    height: 64px;
+}
