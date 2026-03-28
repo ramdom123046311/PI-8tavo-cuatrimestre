@@ -11,7 +11,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/articles.css') }}">
+    <script>if(localStorage.getItem('sm_dark_mode')==='true'){document.documentElement.classList.add('dark');}</script>
+
 </head>
 
 <body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false }">
@@ -41,12 +44,16 @@
 
         <!-- User Info -->
         <div class="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+            <div id="sidebar-avatar-wrap" class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('patient_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full" id="sidebar-avatar-img">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5" id="sidebar-avatar-icon"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-800">María González</p>
-                <p class="text-xs text-gray-500">paciente@demo.com</p>
+                <p class="text-sm font-bold text-gray-800">{{ session.get('nombre', 'Paciente') }}</p>
+                <p class="text-xs text-gray-500">{{ session.get('correo', 'paciente@demo.com') }}</p>
             </div>
         </div>
 
@@ -88,7 +95,7 @@
 
         <!-- Logout -->
         <div class="p-4 border-t border-gray-100">
-            <a href="/login"
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
             </a>
@@ -122,113 +129,30 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    <!-- Card 1 -->
+                    {% for art in articulos %}
                     <div
                         class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
                         <div class="flex items-center gap-4 mb-4">
                             <span
-                                class="px-3 py-1 bg-pink-50 text-pink-600 text-[11px] font-bold rounded-full uppercase tracking-wider">Nutrición</span>
-                            <span class="text-xs text-gray-400 font-semibold">8 min lectura</span>
+                                class="px-3 py-1 bg-pink-50 text-pink-600 text-[11px] font-bold rounded-full uppercase tracking-wider">{{ art.categoria or 'General' }}</span>
                         </div>
-                        <h3 class="text-lg font-bold text-pink-primary mb-3">Nutrición Durante el Embarazo: Guía
-                            Completa</h3>
-                        <p class="text-sm text-gray-600 mb-6 flex-1 line-clamp-3">Una alimentación equilibrada es
-                            fundamental durante el embarazo. Descubre qué alimentos son esenciales para el desarrollo
-                            saludable de tu bebé.</p>
+                        <h3 class="text-lg font-bold text-pink-primary mb-3">{{ art.titulo }}</h3>
+                        <p class="text-sm text-gray-600 mb-6 flex-1 line-clamp-3">{{ art.contenido }}</p>
 
                         <div
                             class="flex items-center justify-between text-xs text-gray-500 font-semibold border-b border-gray-50 pb-4 mb-4">
-                            <div class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Dra.
-                                Ana Martínez</div>
+                            <div class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Médico ID: {{ art.id_medico }}</div>
                             <div class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                10/02/2026</div>
+                                {{ art.fecha_publicacion.split('T')[0] if art.fecha_publicacion else 'N/A' }}</div>
                         </div>
                         <a href="#"
                             class="flex items-center gap-2 text-pink-primary text-sm font-bold hover:opacity-80 transition-opacity">
                             <i data-lucide="book-open" class="w-4 h-4"></i> Leer artículo completo
                         </a>
                     </div>
-
-                    <!-- Card 2 -->
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-4 mb-4">
-                            <span
-                                class="px-3 py-1 bg-pink-50 text-pink-600 text-[11px] font-bold rounded-full uppercase tracking-wider">Actividad
-                                Física</span>
-                            <span class="text-xs text-gray-400 font-semibold">6 min lectura</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-pink-primary mb-3">Ejercicios Seguros en el Embarazo</h3>
-                        <p class="text-sm text-gray-600 mb-6 flex-1 line-clamp-3">Mantenerse activa durante el embarazo
-                            trae múltiples beneficios. Conoce qué ejercicios son seguros y recomendados en cada
-                            trimestre.</p>
-
-                        <div
-                            class="flex items-center justify-between text-xs text-gray-500 font-semibold border-b border-gray-50 pb-4 mb-4">
-                            <div class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Dr.
-                                Carlos Ramírez</div>
-                            <div class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                05/02/2026</div>
-                        </div>
-                        <a href="#"
-                            class="flex items-center gap-2 text-pink-primary text-sm font-bold hover:opacity-80 transition-opacity">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Leer artículo completo
-                        </a>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-4 mb-4">
-                            <span
-                                class="px-3 py-1 bg-pink-50 text-pink-600 text-[11px] font-bold rounded-full uppercase tracking-wider">Parto</span>
-                            <span class="text-xs text-gray-400 font-semibold">12 min lectura</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-pink-primary mb-3">Preparación para el Parto: Todo lo que
-                            Necesitas Saber</h3>
-                        <p class="text-sm text-gray-600 mb-6 flex-1 line-clamp-3">El parto es un momento crucial.
-                            Aprende sobre las diferentes etapas del trabajo de parto y cómo prepararte física y
-                            mentalmente.</p>
-
-                        <div
-                            class="flex items-center justify-between text-xs text-gray-500 font-semibold border-b border-gray-50 pb-4 mb-4">
-                            <div class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Dra.
-                                Laura Sánchez</div>
-                            <div class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                01/02/2026</div>
-                        </div>
-                        <a href="#"
-                            class="flex items-center gap-2 text-pink-primary text-sm font-bold hover:opacity-80 transition-opacity">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Leer artículo completo
-                        </a>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div
-                        class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-4 mb-4">
-                            <span
-                                class="px-3 py-1 bg-pink-50 text-pink-600 text-[11px] font-bold rounded-full uppercase tracking-wider">Neonatología</span>
-                            <span class="text-xs text-gray-400 font-semibold">10 min lectura</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-pink-primary mb-3">Cuidados del Recién Nacido: Primeras
-                            Semanas</h3>
-                        <p class="text-sm text-gray-600 mb-6 flex-1 line-clamp-3">Las primeras semanas con tu bebé
-                            pueden ser desafiantes. Esta guía te ayudará a entender las necesidades básicas de tu recién
-                            nacido.</p>
-
-                        <div
-                            class="flex items-center justify-between text-xs text-gray-500 font-semibold border-b border-gray-50 pb-4 mb-4">
-                            <div class="flex items-center gap-1.5"><i data-lucide="user" class="w-3.5 h-3.5"></i> Dr.
-                                Miguel Torres</div>
-                            <div class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                28/01/2026</div>
-                        </div>
-                        <a href="#"
-                            class="flex items-center gap-2 text-pink-primary text-sm font-bold hover:opacity-80 transition-opacity">
-                            <i data-lucide="book-open" class="w-4 h-4"></i> Leer artículo completo
-                        </a>
-                    </div>
+                    {% else %}
+                    <p class="text-gray-500 col-span-2">No hay artículos disponibles en este momento.</p>
+                    {% endfor %}
                 </div>
             </div>
         </main>

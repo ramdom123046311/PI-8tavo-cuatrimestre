@@ -1,0 +1,312 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DOCTOR DARK MODE — Sistema de modo oscuro para panel de doctores
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --doc-bg-primary: #ffffff;
+    --doc-bg-secondary: #f9fafb;
+    --doc-bg-tertiary: #f3f4f6;
+    --doc-text-primary: #1f2937;
+    --doc-text-secondary: #6b7280;
+    --doc-text-tertiary: #9ca3af;
+    --doc-border: #e5e7eb;
+    --doc-border-light: #f3f4f6;
+}
+
+html.doctor-dark {
+    --doc-bg-primary: #111827;
+    --doc-bg-secondary: #1f2937;
+    --doc-bg-tertiary: #374151;
+    --doc-text-primary: #f3f4f6;
+    --doc-text-secondary: #d1d5db;
+    --doc-text-tertiary: #9ca3af;
+    --doc-border: #374151;
+    --doc-border-light: #1f2937;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* BODY Y BACKGROUND */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark body {
+    background-color: var(--doc-bg-primary) !important;
+    color: var(--doc-text-primary) !important;
+}
+
+html.doctor-dark {
+    background-color: var(--doc-bg-primary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* SIDEBAR */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark aside {
+    background-color: var(--doc-bg-secondary) !important;
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark aside .border-r {
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark aside .border-b {
+    border-color: var(--doc-border) !important;
+}
+
+/* User Info Card */
+html.doctor-dark .px-6.py-4.border-b {
+    background-color: var(--doc-bg-secondary) !important;
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark .bg-white {
+    background-color: var(--doc-bg-secondary) !important;
+}
+
+/* Text in Sidebar */
+html.doctor-dark .text-gray-800 {
+    color: var(--doc-text-primary) !important;
+}
+
+html.doctor-dark .text-gray-600 {
+    color: var(--doc-text-secondary) !important;
+}
+
+html.doctor-dark .text-gray-500 {
+    color: var(--doc-text-tertiary) !important;
+}
+
+html.doctor-dark .text-gray-400 {
+    color: var(--doc-text-tertiary) !important;
+}
+
+html.doctor-dark .text-gray-700 {
+    color: var(--doc-text-primary) !important;
+}
+
+/* Nav Links */
+html.doctor-dark nav a {
+    color: var(--doc-text-secondary) !important;
+}
+
+html.doctor-dark nav a:hover {
+    background-color: var(--doc-bg-tertiary) !important;
+}
+
+html.doctor-dark .hover\:bg-gray-50:hover {
+    background-color: var(--doc-bg-tertiary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* MAIN CONTENT */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark main {
+    background-color: var(--doc-bg-primary) !important;
+}
+
+html.doctor-dark .bg-pink-light {
+    background-color: var(--doc-bg-primary) !important;
+}
+
+/* Header Mobile */
+html.doctor-dark header {
+    background-color: var(--doc-bg-secondary) !important;
+    border-color: var(--doc-border) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* CARDS Y CONTENEDORES */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark .bg-white {
+    background-color: var(--doc-bg-secondary) !important;
+    color: var(--doc-text-primary) !important;
+}
+
+html.doctor-dark .border-gray-100 {
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark .border-gray-50 {
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark .border-gray-200 {
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* TÍTULOS Y TEXTOS */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark h1,
+html.doctor-dark h2,
+html.doctor-dark h3,
+html.doctor-dark h4,
+html.doctor-dark h5,
+html.doctor-dark h6 {
+    color: var(--doc-text-primary) !important;
+}
+
+html.doctor-dark p {
+    color: var(--doc-text-secondary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* INPUTS Y FORMULARIOS */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark input,
+html.doctor-dark textarea,
+html.doctor-dark select {
+    background-color: var(--doc-bg-tertiary) !important;
+    color: var(--doc-text-primary) !important;
+    border-color: var(--doc-border) !important;
+}
+
+html.doctor-dark input:focus,
+html.doctor-dark textarea:focus,
+html.doctor-dark select:focus {
+    background-color: var(--doc-bg-tertiary) !important;
+    border-color: #ec4899 !important;
+}
+
+html.doctor-dark input::placeholder,
+html.doctor-dark textarea::placeholder {
+    color: var(--doc-text-tertiary) !important;
+}
+
+html.doctor-dark input[disabled],
+html.doctor-dark textarea[disabled] {
+    background-color: var(--doc-bg-secondary) !important;
+    color: var(--doc-text-tertiary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* BOTONES */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark button {
+    color: inherit;
+}
+
+html.doctor-dark .border-pink-primary {
+    border-color: #ec4899 !important;
+}
+
+html.doctor-dark button.border-pink-primary {
+    color: #ec4899 !important;
+}
+
+html.doctor-dark button.border-pink-primary:hover {
+    background-color: var(--doc-bg-tertiary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* TABLAS */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark table {
+    color: var(--doc-text-primary);
+}
+
+html.doctor-dark td,
+html.doctor-dark th {
+    border-color: var(--doc-border) !important;
+    color: var(--doc-text-primary) !important;
+}
+
+html.doctor-dark tr:hover {
+    background-color: var(--doc-bg-tertiary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* MODALES */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark .bg-black\/50 {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+html.doctor-dark .bg-gray-900\/60 {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* MENSAJES Y ALERTAS */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark .bg-green-50 {
+    background-color: #064e3b !important;
+    color: #a7f3d0 !important;
+}
+
+html.doctor-dark .text-green-800 {
+    color: #a7f3d0 !important;
+}
+
+html.doctor-dark .border-green-200 {
+    border-color: #6ee7b7 !important;
+}
+
+html.doctor-dark .bg-red-50 {
+    background-color: #7f1d1d !important;
+    color: #fca5a5 !important;
+}
+
+html.doctor-dark .text-red-800 {
+    color: #fca5a5 !important;
+}
+
+html.doctor-dark .border-red-200 {
+    border-color: #f87171 !important;
+}
+
+html.doctor-dark .bg-blue-50 {
+    background-color: #0c2340 !important;
+    color: #93c5fd !important;
+}
+
+html.doctor-dark .text-blue-800 {
+    color: #93c5fd !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* AVATAR Y FOTOS */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark .bg-pink-50 {
+    background-color: #5e1a47 !important;
+}
+
+html.doctor-dark .text-purple-700 {
+    color: #c084fc !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* SCROLLBAR */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+html.doctor-dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+html.doctor-dark ::-webkit-scrollbar-track {
+    background: var(--doc-bg-secondary);
+}
+
+html.doctor-dark ::-webkit-scrollbar-thumb {
+    background: var(--doc-border);
+    border-radius: 4px;
+}
+
+html.doctor-dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--doc-text-tertiary);
+}

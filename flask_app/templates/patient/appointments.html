@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salud Materna - Citas</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/appointments.css') }}">
+    <script>if(localStorage.getItem('sm_dark_mode')==='true'){document.documentElement.classList.add('dark');}</script>
 </head>
 
 <body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false, activeTab: 'solicitar' }">
@@ -42,12 +42,16 @@
 
         <!-- User Info -->
         <div class="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+            <div id="sidebar-avatar-wrap" class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('patient_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full" id="sidebar-avatar-img">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5" id="sidebar-avatar-icon"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-800">María González</p>
-                <p class="text-xs text-gray-500">paciente@demo.com</p>
+                <p class="text-sm font-bold text-gray-800">{{ session.get('nombre', 'Paciente') }}</p>
+                <p class="text-xs text-gray-500">{{ session.get('correo', '') }}</p>
             </div>
         </div>
 
@@ -89,7 +93,7 @@
 
         <!-- Logout -->
         <div class="p-4 border-t border-gray-100">
-            <a href="/login"
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
             </a>
@@ -99,7 +103,7 @@
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
 
-        <!-- Mobile Header (Visible only on mobile) -->
+        <!-- Mobile Header -->
         <header class="lg:hidden bg-white h-16 border-b border-gray-100 flex items-center justify-between px-4 z-30">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-pink-primary rounded-full flex items-center justify-center text-white">
@@ -112,6 +116,20 @@
             </button>
         </header>
 
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="px-4 md:px-8 pt-4">
+            {% for msg in messages %}
+            <div class="mb-2 px-4 py-3 rounded-lg text-sm font-semibold
+                {{ 'bg-green-50 text-green-800 border border-green-200' if '¡' in msg or '✅' in msg else 'bg-red-50 text-red-800 border border-red-200' }}">
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <!-- Page Content -->
         <main class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-6xl mx-auto">
@@ -122,8 +140,7 @@
                 </div>
 
                 <!-- Tabs -->
-                <div
-                    class="inline-flex items-center gap-1 bg-gray-100 p-1 rounded-full mb-6 w-full max-w-sm border border-gray-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]">
+                <div class="inline-flex items-center gap-1 bg-gray-100 p-1 rounded-full mb-6 w-full max-w-sm border border-gray-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]">
                     <button @click="activeTab = 'solicitar'"
                         :class="activeTab === 'solicitar' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-700'"
                         class="flex-1 py-1.5 text-xs rounded-full transition-all text-center focus:outline-none">
@@ -133,148 +150,321 @@
                         :class="activeTab === 'mis_citas' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-700'"
                         class="flex-1 py-1.5 text-xs rounded-full transition-all text-center focus:outline-none">
                         Mis Citas
+                        {% if citas %}
+                        <span class="ml-1 inline-flex items-center justify-center w-4 h-4 bg-pink-primary text-white text-[10px] font-bold rounded-full">{{ citas|length }}</span>
+                        {% endif %}
                     </button>
                 </div>
 
-                <!-- Tab Request Appointment -->
+                <!-- ── Tab: Solicitar Cita ──────────────────────── -->
                 <div x-show="activeTab === 'solicitar'"
                     class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm w-full max-w-2xl"
                     style="display: none;" x-transition>
-                    <h3 class="font-bold text-pink-primary mb-6">Nueva Solicitud de Cita</h3>
-                    <form class="space-y-4">
+                    <h3 class="font-bold text-pink-primary mb-6 flex items-center gap-2">
+                        <i data-lucide="calendar-plus" class="w-5 h-5"></i> Nueva Solicitud de Cita
+                    </h3>
+
+                    <form id="form-cita" method="POST" action="/patient/appointments" class="space-y-5" novalidate>
+
+                        <!-- Especialista -->
                         <div>
-                            <label class="text-xs font-bold text-gray-800 block mb-2">Especialista <span
-                                    class="text-red-500">*</span></label>
-                            <select
-                                class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary appearance-none border-none cursor-pointer">
-                                <option>Seleccione un especialista</option>
-                                <option>Dra. Ana Martínez (Ginecología)</option>
+                            <label for="id_medico" class="text-xs font-bold text-gray-700 block mb-2">
+                                Especialista <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select id="id_medico" name="id_medico" required
+                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-pink-primary border border-transparent focus:border-pink-primary appearance-none cursor-pointer transition">
+                                    <option value="">— Seleccione un especialista —</option>
+                                    {% for m in medicos %}
+                                    <option value="{{ m.id_medico }}">
+                                        Dr(a). {{ m.nombre_completo }} — {{ m.especialidad }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                            <p id="err-medico" class="text-xs text-red-500 mt-1 hidden">Selecciona un especialista.</p>
+                        </div>
+
+                        <!-- Fecha y Hora -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="fecha" class="text-xs font-bold text-gray-700 block mb-2">
+                                    Fecha <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="fecha" name="fecha" required
+                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-pink-primary border border-transparent focus:border-pink-primary transition">
+                                <p id="err-fecha" class="text-xs text-red-500 mt-1 hidden">Selecciona una fecha válida (hoy o futura).</p>
+                            </div>
+                            <div>
+                                <label for="hora" class="text-xs font-bold text-gray-700 block mb-2">
+                                    Hora <span class="text-red-500">*</span>
+                                </label>
+                                <input type="time" id="hora" name="hora" required
+                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-pink-primary border border-transparent focus:border-pink-primary transition">
+                                <p id="err-hora" class="text-xs text-red-500 mt-1 hidden">Selecciona una hora válida (no puede ser en el pasado).</p>
+                            </div>
+                        </div>
+
+                        <!-- Motivo -->
+                        <div>
+                            <label for="motivo" class="text-xs font-bold text-gray-700 block mb-2">
+                                Motivo de la Consulta <span class="text-gray-400">(opcional)</span>
+                            </label>
+                            <select id="motivo" name="motivo" required
+                                class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-pink-primary border border-transparent focus:border-pink-primary appearance-none cursor-pointer transition">
+                                <option value="">— Seleccione un motivo —</option>
+                                <option value="Dolor">Dolor</option>
+                                <option value="Embarazo">Embarazo</option>
+                                <option value="Control">Control</option>
+                                <option value="Prevencion">Prevención</option>
+                                <option value="Malestar">Malestar</option>
+                                <option value="Salud mental">Salud mental</option>
+                                <option value="Nutricion">Nutrición</option>
+                                <option value="Otro">Otro</option>
                             </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs font-bold text-gray-800 block mb-2">Fecha Preferida <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" placeholder="DD/MM/AAAA"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary border-none">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-800 block mb-2">Hora Preferida <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text" placeholder="HH:MM"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 outline-none focus:ring-1 focus:ring-pink-primary border-none">
-                            </div>
+
+                        <!-- Info box -->
+                        <div class="flex items-start gap-3 p-4 bg-pink-50 rounded-xl border border-pink-100">
+                            <i data-lucide="info" class="w-4 h-4 text-pink-primary mt-0.5 flex-shrink-0"></i>
+                            <p class="text-xs text-gray-600 leading-relaxed">
+                                Tu solicitud será enviada al especialista seleccionado. Una vez confirmada, recibirás
+                                el enlace de videoconsulta en este módulo.
+                            </p>
                         </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-800 block mb-2">Motivo de la Consulta</label>
-                            <textarea rows="4" placeholder="Describa brevemente el motivo de su consulta"
-                                class="w-full bg-gray-50 p-4 rounded-lg text-sm text-gray-600 outline-none focus:ring-1 focus:ring-pink-primary border-none resize-none"></textarea>
-                        </div>
-                        <button type="submit"
-                            class="w-full py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm outline-none hover:opacity-90 transition-opacity mt-4">
-                            Enviar Solicitud
+
+                        <button type="submit" id="btn-enviar"
+                            class="w-full py-3 bg-pink-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Enviar Solicitud
                         </button>
                     </form>
                 </div>
 
-                <!-- Tab My Appointments -->
+                <!-- ── Tab: Mis Citas ──────────────────────────── -->
                 <div x-show="activeTab === 'mis_citas'" class="space-y-4 w-full" style="display: none;" x-transition>
 
-                    <!-- Approved 1 -->
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="font-bold text-pink-primary">Dra. Ana Martínez</h3>
-                            <span
-                                class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i> Aprobada
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold">
-                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                    class="w-3.5 h-3.5 mt-px"></i> 15/03/2026</span>
-                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                    class="w-3.5 h-3.5 mt-px"></i> 10:00</span>
-                        </div>
-                        <div class="p-4 bg-pink-50 rounded-xl text-sm">
-                            <p class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
-                                <i data-lucide="video" class="w-4 h-4 text-pink-primary mt-0.5"></i> Enlace de
-                                videoconsulta:
-                            </p>
-                            <a href="#"
-                                class="text-pink-primary font-bold hover:underline">https://meet.google.com/abc-defg-hij</a>
-                        </div>
-                    </div>
+                    {% if citas %}
+                        {% for cita in citas %}
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                            <!-- Status stripe -->
+                            {% if cita.estado == 'aprobada' %}
+                            <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
+                            {% elif cita.estado == 'pendiente' %}
+                            <div class="absolute top-0 left-0 bottom-0 w-1 bg-yellow-400"></div>
+                            {% elif cita.estado == 'rechazada' %}
+                            <div class="absolute top-0 left-0 bottom-0 w-1 bg-red-400"></div>
+                            {% elif cita.estado == 'cancelada' %}
+                            <div class="absolute top-0 left-0 bottom-0 w-1 bg-gray-300"></div>
+                            {% endif %}
 
-                    <!-- Approved 2 -->
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-green-500"></div>
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="font-bold text-pink-primary">Dr. Carlos Ramírez</h3>
-                            <span
-                                class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
-                                <i data-lucide="check-circle" class="w-3 h-3"></i> Aprobada
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold">
-                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                    class="w-3.5 h-3.5 mt-px"></i> 20/03/2026</span>
-                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                    class="w-3.5 h-3.5 mt-px"></i> 15:30</span>
-                        </div>
-                        <div class="p-4 bg-pink-50 rounded-xl text-sm">
-                            <p class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
-                                <i data-lucide="video" class="w-4 h-4 text-pink-primary mt-0.5"></i> Enlace de
-                                videoconsulta:
-                            </p>
-                            <a href="#"
-                                class="text-pink-primary font-bold hover:underline">https://meet.google.com/xyz-uvwx-yzw</a>
-                        </div>
-                    </div>
-
-                    <!-- New Proposal -->
-                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 left-0 bottom-0 w-1 bg-orange-400"></div>
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="font-bold text-pink-primary">Dra. Laura Sánchez</h3>
-                            <span
-                                class="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-xs font-bold border border-orange-100">
-                                <i data-lucide="info" class="w-3 h-3"></i> Nueva Propuesta
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center gap-4 text-xs text-gray-500 mb-4 font-semibold line-through opacity-70">
-                            <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                    class="w-3.5 h-3.5 mt-px"></i> 18/03/2026</span>
-                            <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                    class="w-3.5 h-3.5 mt-px"></i> 11:00</span>
-                        </div>
-                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100 mb-4 text-sm text-gray-700">
-                            <p class="mb-2">Lo siento, ese horario no está disponible. ¿Te vendría bien el 22 de marzo a
-                                las 16:00?</p>
-                            <div class="flex items-center gap-4 text-xs font-bold text-orange-700">
-                                <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                        class="w-3.5 h-3.5 mt-px"></i> 22/03/2026</span>
-                                <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                        class="w-3.5 h-3.5 mt-px"></i> 16:00</span>
+                            <div class="pl-3 flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-pink-primary">Dr(a). {{ cita.nombre_medico }}</h3>
+                                <!-- Estado badge -->
+                                {% if cita.estado == 'aprobada' %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i> Aprobada
+                                </span>
+                                {% elif cita.estado == 'pendiente' %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full text-xs font-bold border border-yellow-100">
+                                    <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
+                                </span>
+                                {% elif cita.estado == 'rechazada' %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-bold border border-red-100">
+                                    <i data-lucide="x-circle" class="w-3 h-3"></i> Rechazada
+                                </span>
+                                {% elif cita.estado == 'cancelada' %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 rounded-full text-xs font-bold border border-gray-200">
+                                    <i data-lucide="slash" class="w-3 h-3"></i> Cancelada
+                                </span>
+                                {% endif %}
                             </div>
+
+                            <div class="pl-3 flex items-center gap-4 text-xs text-gray-500 mb-3 font-semibold">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                                    {{ cita.fecha }}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                    {{ cita.hora[:5] if cita.hora else '' }}
+                                </span>
+                            </div>
+
+                            {% if cita.estado in ['pendiente', 'aprobada'] %}
+                            <div class="pl-3 flex items-center gap-2 mt-2" x-data="{ hoy: new Date().toISOString().split('T')[0], fechaCita: '{{ cita.fecha }}', editable: false }" x-init="editable = (new Date(fechaCita) - new Date(hoy)) > 86400000">
+                                <div class="flex gap-2" x-data="{ daysUntil: 0 }" x-init="const now = new Date(); now.setHours(0,0,0,0); const cita = new Date(fechaCita + 'T00:00:00'); daysUntil = Math.ceil((cita - now) / (1000*60*60*24));">
+                                        <button @click="$dispatch('open-edit', { id: {{ cita.id_cita }}, fecha: '{{ cita.fecha }}', hora: '{{ cita.hora[:5] if cita.hora else '' }}' })"
+                                            class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors flex items-center gap-1">
+                                            <i data-lucide="edit-2" class="w-3 h-3"></i> Editar
+                                        </button>
+                                        <button @click="$dispatch('open-cancel', { id: {{ cita.id_cita }} })"
+                                            class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors flex items-center gap-1">
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i> Cancelar
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                            {% endif %}
+
+                            {% if cita.estado == 'aprobada' and cita.enlace_meet %}
+                            <div class="pl-3 p-4 bg-pink-50 rounded-xl text-sm">
+                                <p class="font-semibold text-gray-800 flex items-center gap-2 mb-1">
+                                    <i data-lucide="video" class="w-4 h-4 text-pink-primary"></i>
+                                    Enlace de videoconsulta:
+                                </p>
+                                <a href="{{ cita.enlace_meet }}" target="_blank"
+                                    class="text-pink-primary font-bold hover:underline break-all">{{ cita.enlace_meet }}</a>
+                            </div>
+                            {% endif %}
+
+                            {% if cita.mensaje_medico %}
+                            <div class="pl-3 mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100 text-xs text-gray-700">
+                                <p class="font-bold text-blue-700 mb-1 flex items-center gap-1">
+                                    <i data-lucide="message-circle" class="w-3 h-3"></i> Mensaje del médico:
+                                </p>
+                                {{ cita.mensaje_medico }}
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="flex gap-3">
-                            <button
-                                class="flex-1 py-2 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Aceptar
-                                Nueva Fecha</button>
-                            <button
-                                class="flex-1 py-2 bg-white text-pink-primary border border-pink-primary text-sm font-bold rounded-lg hover:bg-pink-light transition-colors">Rechazar</button>
+                        {% endfor %}
+
+                    {% else %}
+                        <div class="bg-white p-10 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
+                            <div class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mb-4">
+                                <i data-lucide="calendar-off" class="w-8 h-8 text-pink-primary opacity-60"></i>
+                            </div>
+                            <p class="font-bold text-gray-700 mb-1">No tienes citas registradas</p>
+                            <p class="text-sm text-gray-400">Solicita tu primera cita en la pestaña "Solicitar Cita".</p>
+                            <button @click="activeTab = 'solicitar'"
+                                class="mt-6 px-6 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">
+                                Solicitar Cita
+                            </button>
                         </div>
-                    </div>
+                    {% endif %}
 
                 </div>
 
             </div>
+            
+            <!-- Time restriction helpers -->
+<script>
+  function getAppointmentTimeInfo(fechaCita) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const citaDate = new Date(fechaCita + " T00:00:00\);
+ const diff = Math.ceil((citaDate - today) / (1000*60*60*24));
+ return { daysUntil: diff, canCancel: diff >= 1, canEdit: diff >= 2 };
+ }
+</script>
+
+<!-- Modal Cancelar -->
+            <div x-data="{ open: false, citaId: null }" 
+                 @open-cancel.window="open = true; citaId = $event.detail.id"
+                 x-show="open" 
+                 class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" style="display: none;">
+                <div @click.away="open = false" class="bg-white rounded-xl p-6 shadow-lg max-w-sm w-full mx-4">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Cancelar Cita</h3>
+                    <p class="text-sm text-gray-500 mb-4">¿Estás seguro que deseas cancelar esta cita? Esta acción no se puede deshacer.</p>
+                    <form method="POST" :action="'/patient/appointments/' + citaId + '/action'">
+                        <input type="hidden" name="action" value="cancel">
+                        <div class="flex justify-end gap-2">
+                            <button type="button" @click="open = false" class="px-4 py-2 text-sm text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Volver</button>
+                            <button type="submit" class="px-4 py-2 text-sm text-white font-semibold bg-red-500 hover:bg-red-600 rounded-lg transition-colors">Sí, Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Editar -->
+            <div x-data="{ open: false, citaId: null, fecha: '', hora: '' }" 
+                 @open-edit.window="open = true; citaId = $event.detail.id; fecha = $event.detail.fecha; hora = $event.detail.hora"
+                 x-show="open" 
+                 class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" style="display: none;">
+                <div @click.away="open = false" class="bg-white rounded-xl p-6 shadow-lg max-w-sm w-full mx-4">
+                    <h3 class="font-bold text-pink-primary text-lg mb-4">Reprogramar Cita</h3>
+                    <form method="POST" :action="'/patient/appointments/' + citaId + '/action'" class="space-y-4">
+                        <input type="hidden" name="action" value="edit">
+                        <div>
+                            <label class="text-xs font-bold text-gray-700 block mb-1">Nueva Fecha</label>
+                            <input type="date" name="nueva_fecha" x-model="fecha" required :min="new Date().toISOString().split('T')[0]" class="w-full bg-gray-50 px-3 py-2 rounded-lg text-sm outline-none border border-gray-200">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-700 block mb-1">Nueva Hora</label>
+                            <input type="time" name="nueva_hora" x-model="hora" required class="w-full bg-gray-50 px-3 py-2 rounded-lg text-sm outline-none border border-gray-200">
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" @click="open = false" class="px-4 py-2 text-sm text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancelar</button>
+                            <button type="submit" class="px-4 py-2 text-sm text-white font-semibold bg-pink-primary hover:bg-pink-600 rounded-lg transition-colors">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <script src="{{ url_for('static', filename='js/appointments.js') }}"></script>
+    <script>
+        // Validation logic
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // Pre-select doctor if coming from specialists page
+            const urlParams = new URLSearchParams(window.location.search);
+            const medicoParam = urlParams.get('medico');
+            if (medicoParam) {
+                const sel = document.getElementById('id_medico');
+                if (sel) sel.value = medicoParam;
+            }
+
+            const form    = document.getElementById('form-cita');
+            const inp_med = document.getElementById('id_medico');
+            const inp_fec = document.getElementById('fecha');
+            const inp_hor = document.getElementById('hora');
+            const err_med = document.getElementById('err-medico');
+            const err_fec = document.getElementById('err-fecha');
+            const err_hor = document.getElementById('err-hora');
+
+            // Set today as minimum date
+            const todayStr = new Date().toISOString().split('T')[0];
+            inp_fec.min = todayStr;
+
+            function getNow() {
+                const n = new Date();
+                return { date: n.toISOString().split('T')[0], time: n.toTimeString().slice(0, 5) };
+            }
+
+            function clearErrors() {
+                [err_med, err_fec, err_hor].forEach(e => e.classList.add('hidden'));
+                [inp_med, inp_fec, inp_hor].forEach(e => e.classList.remove('border-red-400', 'ring-red-300'));
+            }
+
+            function markError(input, errEl) {
+                errEl.classList.remove('hidden');
+                input.classList.add('border-red-400', 'ring-1', 'ring-red-300');
+            }
+
+            form.addEventListener('submit', function(e) {
+                clearErrors();
+                let valid = true;
+                const now = getNow();
+
+                if (!inp_med.value) { markError(inp_med, err_med); valid = false; }
+
+                if (!inp_fec.value || inp_fec.value < now.date) {
+                    markError(inp_fec, err_fec); valid = false;
+                }
+
+                if (!inp_hor.value) {
+                    markError(inp_hor, err_hor); valid = false;
+                } else if (inp_fec.value === now.date && inp_hor.value <= now.time) {
+                    err_hor.textContent = 'La hora debe ser posterior a la hora actual.';
+                    markError(inp_hor, err_hor); valid = false;
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
+    </script>
 </body>
 
 </html>

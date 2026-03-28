@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor-dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor_appointments.css') }}">
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -42,13 +43,17 @@
         </div>
 
         <!-- User Info -->
-        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="user" class="w-4 h-4"></i>
+        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3 bg-white">
+            <div class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('doctor_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-[11px] font-bold text-gray-800">Dr. Carlos Ramírez</p>
-                <p class="text-[9px] text-gray-500">doctor@demo.com</p>
+                <p class="text-[11px] font-bold text-gray-800">Dr(a). {{ session.get('nombre', 'Médico') }}</p>
+                <p class="text-[9px] text-gray-500">{{ session.get('correo', 'correo@demo.com') }}</p>
             </div>
         </div>
 
@@ -57,6 +62,10 @@
             <a href="/doctor/dashboard"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Inicio
+            </a>
+            <a href="/doctor/profile"
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> Mis Datos
             </a>
             <a href="/doctor/appointments"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-white bg-pink-primary rounded-lg transition-colors font-bold shadow-sm">
@@ -77,8 +86,14 @@
         </nav>
 
         <!-- Logout -->
-        <div class="p-6 w-full">
-            <a href="/login"
+        <div class="p-6 w-full space-y-3">
+            <button id="dark-toggle-btn" type="button"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                data-dark="false" data-label="label">
+                <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                <span data-label="true">Modo Oscuro</span>
+            </button>
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-[11px] font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
                 <i data-lucide="log-out" class="w-3 h-3"></i> Cerrar Sesión
             </a>
@@ -114,236 +129,299 @@
                 <!-- Tabs -->
                 <div
                     class="flex items-center gap-2 bg-gray-100 p-1 rounded-full mb-8 w-max shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] border border-gray-200">
+                    {% set pendientes = citas|selectattr('estado', 'equalto', 'pendiente')|list %}
+                    {% set confirmadas = citas|selectattr('estado', 'equalto', 'aprobada')|list %}
+                    
                     <button @click="activeTab = 'pendientes'"
                         :class="activeTab === 'pendientes' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-800'"
                         class="px-5 py-1.5 text-xs rounded-full flex items-center gap-2 transition-all focus:outline-none">
                         Solicitudes Pendientes <span
-                            class="bg-orange-100 text-orange-600 rounded-full px-1.5 py-0.5 text-[10px] font-bold">3</span>
+                            class="bg-orange-100 text-orange-600 rounded-full px-1.5 py-0.5 text-[10px] font-bold">{{ pendientes|length }}</span>
                     </button>
                     <button @click="activeTab = 'confirmadas'"
                         :class="activeTab === 'confirmadas' ? 'bg-white text-gray-800 shadow-sm font-bold' : 'text-gray-500 font-semibold hover:text-gray-800'"
                         class="px-5 py-1.5 text-xs rounded-full flex items-center gap-2 transition-all focus:outline-none">
                         Citas Confirmadas <span
-                            class="bg-green-100 text-green-600 rounded-full px-1.5 py-0.5 text-[10px] font-bold">2</span>
+                            class="bg-green-100 text-green-600 rounded-full px-1.5 py-0.5 text-[10px] font-bold">{{ confirmadas|length }}</span>
                     </button>
                 </div>
 
                 <!-- Tab: Pendientes -->
                 <div x-show="activeTab === 'pendientes'" style="display: none;" x-transition
                     class="space-y-4 max-w-5xl">
-
-                    <!-- Pending 1 -->
-                    <div
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform">
-                        <div class="p-6 flex gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-bold text-pink-primary text-sm">María González</h3>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-orange-100">
-                                        <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
-                                    </span>
+                    {% if pendientes %}
+                        {% for cita in pendientes %}
+                        <div
+                            class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform">
+                            <div class="p-6 flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
                                 </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mt-1 mb-3">
-                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                            class="w-3.5 h-3.5"></i> 15/03/2026</span>
-                                    <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                            class="w-3.5 h-3.5"></i> 10:00</span>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="font-bold text-pink-primary text-sm">{{ cita.nombre_paciente }}</h3>
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-orange-100">
+                                            <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mt-1 mb-3">
+                                        <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                                class="w-3.5 h-3.5"></i> {{ cita.fecha }}</span>
+                                        <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                                class="w-3.5 h-3.5"></i> {{ cita.hora }}</span>
+                                    </div>
+                                    <p class="text-xs text-gray-700 font-semibold mb-2"><span
+                                            class="text-gray-500 font-bold">Motivo:</span> {{ cita.motivo_cancelacion }}</p>
+                                    <p class="text-[10px] text-gray-400">Solicitado el: {{ cita.created_at[:10] if cita.created_at else '' }}</p>
                                 </div>
-                                <p class="text-xs text-gray-700 font-semibold mb-2"><span
-                                        class="text-gray-500 font-bold">Motivo:</span> Control prenatal del segundo
-                                    trimestre</p>
-                                <p class="text-[10px] text-gray-400">Solicitado el: 10/02/2026</p>
                             </div>
+                            <button onclick="openGestionarModal({{ cita.id_cita }})"
+                                class="w-full py-2.5 bg-pink-primary hover:opacity-90 transition-opacity text-white text-xs font-bold flex items-center justify-center gap-2">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> Revisar y Responder
+                            </button>
                         </div>
-                        <button
-                            class="w-full py-2.5 bg-pink-primary hover:opacity-90 transition-opacity text-white text-xs font-bold flex items-center justify-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Revisar y Responder
-                        </button>
-                    </div>
-
-                    <!-- Pending 2 -->
-                    <div
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform">
-                        <div class="p-6 flex gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-bold text-pink-primary text-sm">Carmen López</h3>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-orange-100">
-                                        <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mt-1 mb-3">
-                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                            class="w-3.5 h-3.5"></i> 18/03/2026</span>
-                                    <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                            class="w-3.5 h-3.5"></i> 15:30</span>
-                                </div>
-                                <p class="text-xs text-gray-700 font-semibold mb-2"><span
-                                        class="text-gray-500 font-bold">Motivo:</span> Consulta por molestias
-                                    abdominales</p>
-                                <p class="text-[10px] text-gray-400">Solicitado el: 11/02/2026</p>
-                            </div>
-                        </div>
-                        <button
-                            class="w-full py-2.5 bg-pink-primary hover:opacity-90 transition-opacity text-white text-xs font-bold flex items-center justify-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Revisar y Responder
-                        </button>
-                    </div>
-
-                    <!-- Pending 3 -->
-                    <div
-                        class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:-translate-y-0.5 transition-transform">
-                        <div class="p-6 flex gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="font-bold text-pink-primary text-sm">Isabel Martín</h3>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-orange-100">
-                                        <i data-lucide="clock" class="w-3 h-3"></i> Pendiente
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mt-1 mb-3">
-                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                            class="w-3.5 h-3.5"></i> 20/03/2026</span>
-                                    <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                            class="w-3.5 h-3.5"></i> 11:00</span>
-                                </div>
-                                <p class="text-xs text-gray-700 font-semibold mb-2"><span
-                                        class="text-gray-500 font-bold">Motivo:</span> Primera consulta - embarazo de 8
-                                    semanas</p>
-                                <p class="text-[10px] text-gray-400">Solicitado el: 12/02/2026</p>
-                            </div>
-                        </div>
-                        <button
-                            class="w-full py-2.5 bg-pink-primary hover:opacity-90 transition-opacity text-white text-xs font-bold flex items-center justify-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Revisar y Responder
-                        </button>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 text-sm">No hay solicitudes recientes.</p>
+                    {% endif %}
                 </div>
 
                 <!-- Tab: Confirmadas -->
                 <div x-show="activeTab === 'confirmadas'" style="display: none;" x-transition
                     class="space-y-4 max-w-5xl">
 
-                    <!-- Confirmada 1 -->
-                    <div
-                        class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-0.5 transition-transform">
-                        <div class="flex gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start mb-1">
-                                    <h3 class="font-bold text-pink-primary text-sm">Ana Ruiz</h3>
+                    {% if confirmadas %}
+                        {% for cita in confirmadas %}
+                        <div
+                            class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-0.5 transition-transform">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h3 class="font-bold text-pink-primary text-sm">{{ cita.nombre_paciente }}</h3>
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-green-100">
+                                            <i data-lucide="check-circle" class="w-3 h-3"></i> Confirmada
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
+                                        <span class="flex items-center gap-1.5"><i data-lucide="calendar"
+                                                class="w-3.5 h-3.5"></i> {{ cita.fecha }}</span>
+                                        <span class="flex items-center gap-1.5"><i data-lucide="clock"
+                                                class="w-3.5 h-3.5"></i> {{ cita.hora }}</span>
+                                    </div>
                                     <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-green-100">
-                                        <i data-lucide="check-circle" class="w-3 h-3"></i> Confirmada
+                                        class="bg-pink-50 text-pink-500 font-bold text-[9px] px-2 py-0.5 rounded uppercase tracking-wide">
+                                        {{ cita.motivo_cancelacion or 'Cita Médica' }}
                                     </span>
-                                </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
-                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                            class="w-3.5 h-3.5"></i> 25/02/2026</span>
-                                    <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                            class="w-3.5 h-3.5"></i> 09:00</span>
-                                </div>
-                                <span
-                                    class="bg-pink-50 text-pink-500 font-bold text-[9px] px-2 py-0.5 rounded uppercase tracking-wide">Control
-                                    Prenatal</span>
 
-                                <div class="mt-4 bg-pink-light p-4 rounded-xl">
-                                    <p class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mb-1">
-                                        <i data-lucide="video" class="w-3.5 h-3.5 text-pink-primary"></i> Enlace de
-                                        videoconsulta:
-                                    </p>
-                                    <a href="#"
-                                        class="text-pink-primary text-xs font-bold hover:underline">https://meet.google.com/abc-defg-hij</a>
-                                </div>
+                                    {% if cita.enlace_meet %}
+                                    <div class="mt-4 bg-pink-light p-4 rounded-xl">
+                                        <p class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mb-1">
+                                            <i data-lucide="video" class="w-3.5 h-3.5 text-pink-primary"></i> Enlace de
+                                            videoconsulta:
+                                        </p>
+                                        <a href="{{ cita.enlace_meet }}" target="_blank"
+                                            class="text-pink-primary text-xs font-bold hover:underline">{{ cita.enlace_meet }}</a>
+                                    </div>
+                                    {% endif %}
 
-                                <div class="mt-4 flex items-center gap-3">
-                                    <button
-                                        class="flex-1 py-2 text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
-                                        Ver Historial
-                                    </button>
-                                    <button
-                                        class="px-6 py-2 bg-pink-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
-                                        Gestionar
-                                    </button>
+                                    {% if cita.mensaje_medico %}
+                                    <div class="mt-4 bg-gray-50 p-4 rounded-xl">
+                                        <p class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mb-1">
+                                            <i data-lucide="message-square" class="w-3.5 h-3.5 text-gray-600"></i> Tu Mensaje:
+                                        </p>
+                                        <p class="text-xs text-gray-600">{{ cita.mensaje_medico }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mt-4 flex items-center gap-3">
+                                        <a href="/doctor/chat"
+                                            class="flex-1 text-center py-2 text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
+                                            Ir al chat
+                                        </a>
+                                        <button onclick="openDiagnosticoModal({{ cita.id_cita }}, '{{ cita.nombre_paciente }}', '{{ cita.fecha }}')"
+                                            class="flex-1 text-center py-2 text-xs font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors flex justify-center items-center gap-1">
+                                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Diagnóstico
+                                        </button>
+                                        <form action="{{ url_for('doctor_update_cita', cita_id=cita.id_cita) }}" method="POST" class="inline">
+                                            <input type="hidden" name="estado" value="cancelada">
+                                            <button type="submit"
+                                                class="px-6 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
+                                                Cancelar
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Confirmada 2 -->
-                    <div
-                        class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:-translate-y-0.5 transition-transform">
-                        <div class="flex gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="user" class="w-5 h-5"></i>
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start mb-1">
-                                    <h3 class="font-bold text-pink-primary text-sm">Laura Fernández</h3>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-wide border border-green-100">
-                                        <i data-lucide="check-circle" class="w-3 h-3"></i> Confirmada
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-4 text-xs text-gray-500 font-semibold mb-2">
-                                    <span class="flex items-center gap-1.5"><i data-lucide="calendar"
-                                            class="w-3.5 h-3.5"></i> 26/02/2026</span>
-                                    <span class="flex items-center gap-1.5"><i data-lucide="clock"
-                                            class="w-3.5 h-3.5"></i> 16:00</span>
-                                </div>
-                                <span
-                                    class="bg-pink-50 text-pink-500 font-bold text-[9px] px-2 py-0.5 rounded uppercase tracking-wide">Seguimiento
-                                    Postparto</span>
-
-                                <div class="mt-4 bg-pink-light p-4 rounded-xl">
-                                    <p class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mb-1">
-                                        <i data-lucide="video" class="w-3.5 h-3.5 text-pink-primary"></i> Enlace de
-                                        videoconsulta:
-                                    </p>
-                                    <a href="#"
-                                        class="text-pink-primary text-xs font-bold hover:underline">https://meet.google.com/xyz-uvwx-yzw</a>
-                                </div>
-
-                                <div class="mt-4 flex items-center gap-3">
-                                    <button
-                                        class="flex-1 py-2 text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
-                                        Ver Historial
-                                    </button>
-                                    <button
-                                        class="px-6 py-2 bg-pink-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
-                                        Gestionar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 text-sm">No hay citas confirmadas.</p>
+                    {% endif %}
                 </div>
 
             </div>
         </main>
     </div>
 
+    <!-- Modal Gestionar Cita -->
+    <div id="gestionarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 opacity-0 pointer-events-none transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform scale-95 transition-transform" id="gestionarModalContent">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-gray-800">Revisar y Responder Cita</h3>
+                <button onclick="closeGestionarModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="gestionarForm" method="POST" action="">
+                <div class="p-6 space-y-4">
+                    <div class="mb-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Acción</label>
+                        <select name="estado" id="estadoSelect" required onchange="toggleFields()"
+                            class="w-full text-sm border-gray-200 rounded-lg focus:ring-pink-primary focus:border-pink-primary px-3 py-2 bg-gray-50">
+                            <option value="aprobada">Aceptar cita</option>
+                            <option value="rechazada">Rechazar / Hacer Contrapropuesta</option>
+                        </select>
+                    </div>
+
+                    <div id="enlaceMeetDiv">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Enlace de Google Meet (Requerido al aceptar)</label>
+                        <input type="url" name="enlace_meet" id="enlaceMeetInput" value="https://meet.google.com/sample-{{ range(1000, 9999)|random }}"
+                            class="w-full text-sm border-gray-200 rounded-lg focus:ring-pink-primary focus:border-pink-primary px-3 py-2" placeholder="ej: https://meet.google.com/abc-defg-hij">
+                    </div>
+
+                    <div id="mensajeDiv" class="hidden">
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Mensaje / Contrapropuesta</label>
+                        <textarea name="mensaje_medico" rows="3"
+                            class="w-full text-sm border-gray-200 rounded-lg focus:ring-pink-primary focus:border-pink-primary px-3 py-2"
+                            placeholder="Ej. Podríamos agendar a las 11:30 en lugar de las 10:00. O envíame mensaje por chat para acordar."></textarea>
+                    </div>
+                </div>
+                
+                <div class="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                    <button type="button" onclick="closeGestionarModal()"
+                        class="flex-1 px-4 py-2 text-gray-600 font-bold text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 text-white font-bold text-sm bg-pink-primary rounded-lg hover:bg-pink-600 shadow-sm">
+                        Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Diagnostico -->
+    <div id="diagnosticoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 opacity-0 pointer-events-none transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform scale-95 transition-transform" id="diagnosticoModalContent">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-gray-800">Generar Reporte / Diagnóstico</h3>
+                <button onclick="closeDiagnosticoModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form id="diagnosticoForm" method="POST" action="" onsubmit="return confirm('¿Seguro que deseas guardar este diagnóstico? Esta acción no se puede deshacer y estará disponible para el paciente.');">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <p class="text-xs font-bold text-gray-500 mb-1">Paciente</p>
+                        <p id="diagPacienteNombre" class="text-sm font-bold text-pink-primary"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-500 mb-1">Fecha de la Cita</p>
+                        <p id="diagFecha" class="text-sm text-gray-800"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-2">Descripción del Diagnóstico</label>
+                        <textarea name="descripcion" rows="5" required
+                            class="w-full text-sm border-gray-200 rounded-lg focus:ring-pink-primary focus:border-pink-primary px-3 py-2 bg-gray-50 outline-none border"
+                            placeholder="Escribe el diagnóstico y notas médicas..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                    <button type="button" onclick="closeDiagnosticoModal()"
+                        class="flex-1 px-4 py-2 text-gray-600 font-bold text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 text-white font-bold text-sm bg-blue-500 rounded-lg hover:bg-blue-600 shadow-sm transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/doctor_appointments.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/doctor-dark-mode.js') }}"></script>
+    <script>
+        function openGestionarModal(citaId) {
+            const modal = document.getElementById('gestionarModal');
+            const content = document.getElementById('gestionarModalContent');
+            const form = document.getElementById('gestionarForm');
+            form.action = `/doctor/appointments/${citaId}/estado`;
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+        }
+
+        function closeGestionarModal() {
+            const modal = document.getElementById('gestionarModal');
+            const content = document.getElementById('gestionarModalContent');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.add('scale-95');
+        }
+
+        function openDiagnosticoModal(citaId, pacienteNombre, fecha) {
+            const modal = document.getElementById('diagnosticoModal');
+            const content = document.getElementById('diagnosticoModalContent');
+            const form = document.getElementById('diagnosticoForm');
+            
+            document.getElementById('diagPacienteNombre').textContent = pacienteNombre;
+            document.getElementById('diagFecha').textContent = fecha;
+            
+            form.action = `/doctor/appointments/${citaId}/diagnostico`;
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+        }
+
+        function closeDiagnosticoModal() {
+            const modal = document.getElementById('diagnosticoModal');
+            const content = document.getElementById('diagnosticoModalContent');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.add('scale-95');
+        }
+
+        function toggleFields() {
+            const estado = document.getElementById('estadoSelect').value;
+            const meetDiv = document.getElementById('enlaceMeetDiv');
+            const msjDiv = document.getElementById('mensajeDiv');
+            const meetInput = document.getElementById('enlaceMeetInput');
+            
+            if (estado === 'aprobada') {
+                meetDiv.classList.remove('hidden');
+                msjDiv.classList.add('hidden');
+                meetInput.required = true;
+            } else {
+                meetDiv.classList.add('hidden');
+                msjDiv.classList.remove('hidden');
+                meetInput.required = false;
+            }
+        }
+    </script>
 </body>
 
 </html>

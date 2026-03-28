@@ -17,12 +17,16 @@
 <!-- User Info -->
 <div class="p-4 border-b" style="border-color: rgba(216, 27, 96, 0.1)">
     <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style="background-color: #FFF5F7">
-            👨‍⚕️
+        <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl overflow-hidden flex-shrink-0" style="background-color: #FFF5F7">
+            {% if session.get('tiene_foto') %}
+                <img src="{{ url_for('doctor_avatar') }}" alt="avatar" class="w-12 h-12 object-cover rounded-full">
+            {% else %}
+                👨‍⚕️
+            {% endif %}
         </div>
         <div class="flex-1 min-w-0">
-            <p class="text-sm truncate" style="color: #D81B60">Dr. Gómez</p>
-            <p class="text-xs text-gray-600 truncate">dr.gomez@example.com</p>
+            <p class="text-sm truncate" style="color: #D81B60">Dr(a). {{ session.get('nombre', 'Médico') }}</p>
+            <p class="text-xs text-gray-600 truncate">{{ session.get('correo', 'correo@demo.com') }}</p>
         </div>
     </div>
 </div>

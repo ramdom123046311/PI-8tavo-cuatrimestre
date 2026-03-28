@@ -1,28 +1,133 @@
-/* profile.css */
+/* ── profile.css — Salud Materna ──────────────────────────────────────────── */
+
+/* ── Variables de color ───────────────────────────────────────────────────── */
+:root {
+    --pink-primary:  #D81B60;
+    --pink-light:    #FFF5F7;
+    --pink-50:       #fdf2f8;
+    --bg-body:       #FFF5F7;
+    --bg-card:       #ffffff;
+    --bg-input:      #f9fafb;       /* gray-50 */
+    --bg-readonly:   #f3f4f6;       /* gray-100 */
+    --text-main:     #1f2937;       /* gray-800 */
+    --text-muted:    #6b7280;       /* gray-500 */
+    --text-label:    #374151;       /* gray-700 */
+    --text-disabled: #9ca3af;       /* gray-400 */
+    --border-card:   #f3f4f6;       /* gray-100 */
+    --border-sidebar:#f3f4f6;
+    --sidebar-bg:    #ffffff;
+    --setting-row:   #FFF5F7;
+}
+
+/* ── Dark mode variables ──────────────────────────────────────────────────── */
+html.dark {
+    --bg-body:       #0f172a;       /* slate-900 */
+    --bg-card:       #1e293b;       /* slate-800 */
+    --bg-input:      #334155;       /* slate-700 */
+    --bg-readonly:   #1e293b;
+    --text-main:     #f1f5f9;       /* slate-100 */
+    --text-muted:    #94a3b8;       /* slate-400 */
+    --text-label:    #cbd5e1;       /* slate-300 */
+    --text-disabled: #64748b;       /* slate-500 */
+    --border-card:   #334155;
+    --border-sidebar:#334155;
+    --sidebar-bg:    #1e293b;
+    --setting-row:   #0f172a;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
 body {
-    background-color: #FFF5F7 !important;
+    background-color: var(--bg-body) !important;
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.bg-pink-light {
-    background-color: #FFF5F7 !important;
+/* ── Tailwind overrides (dark-aware) ──────────────────────────────────────── */
+.bg-pink-light  { background-color: var(--bg-body)      !important; }
+.bg-pink-primary{ background-color: var(--pink-primary)  !important; }
+.text-pink-primary { color: var(--pink-primary)          !important; }
+.border-pink-primary { border-color: var(--pink-primary) !important; }
+.bg-pink-50     { background-color: var(--pink-50)       !important; }
+.focus\:ring-pink-primary:focus { --tw-ring-color: var(--pink-primary) !important; }
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.sidebar {
+    background-color: var(--sidebar-bg)   !important;
+    border-color:     var(--border-sidebar)!important;
+    transition: background-color 0.3s ease;
+}
+.sidebar-subtitle { color: var(--text-muted)  !important; }
+.sidebar-user-name{ color: var(--text-main)   !important; }
+.sidebar-user-email{ color: var(--text-muted) !important; }
+.sidebar .border-gray-100 { border-color: var(--border-sidebar) !important; }
+.sidebar-footer .border-gray-100 { border-color: var(--border-sidebar) !important; }
+
+/* Nav links darkened in dark mode */
+.nav-link {
+    color: var(--text-muted) !important;
+    transition: background-color 0.2s;
+}
+.nav-link:hover {
+    background-color: var(--bg-input) !important;
 }
 
-.bg-pink-primary {
-    background-color: #D81B60 !important;
+/* ── Mobile header ────────────────────────────────────────────────────────── */
+.mobile-header {
+    background-color: var(--bg-card)       !important;
+    border-color:     var(--border-card)   !important;
 }
 
-.text-pink-primary {
-    color: #D81B60 !important;
+/* ── Cards / panels ───────────────────────────────────────────────────────── */
+.card {
+    background-color: var(--bg-card)  !important;
+    border-color:     var(--border-card) !important;
+    transition: background-color 0.3s ease;
+}
+.card-title { color: var(--pink-primary) !important; }
+
+/* ── Page title ───────────────────────────────────────────────────────────── */
+.page-title    { color: var(--pink-primary) !important; }
+.page-subtitle { color: var(--text-muted)   !important; }
+
+/* ── Form fields ──────────────────────────────────────────────────────────── */
+.field-label {
+    color: var(--text-label) !important;
+}
+.field-input {
+    background-color: var(--bg-input) !important;
+    color:            var(--text-main) !important;
+    border-color:     transparent;
+    transition: background-color 0.3s ease, border-color 0.2s;
+}
+.field-input:focus {
+    border-color: var(--pink-primary) !important;
+    outline: none;
+    box-shadow: 0 0 0 1px var(--pink-primary);
+}
+.field-readonly {
+    background-color: var(--bg-readonly)   !important;
+    color:            var(--text-disabled) !important;
+    cursor: not-allowed;
 }
 
-.border-pink-primary {
-    border-color: #D81B60 !important;
+/* ── Settings row ─────────────────────────────────────────────────────────── */
+.setting-row {
+    background-color: var(--setting-row) !important;
+    border-radius: 0.75rem;
+    transition: background-color 0.3s ease;
+}
+.setting-label { color: var(--text-main)  !important; }
+.setting-desc  { color: var(--text-muted) !important; }
+
+/* ── Flash messages ───────────────────────────────────────────────────────── */
+html.dark .flash-msg {
+    background-color: #14532d !important;
+    color: #bbf7d0 !important;
+    border-color: #166534 !important;
 }
 
-.bg-pink-50 {
-    background-color: #fdf2f8 !important;
-}
-
-.focus\:ring-pink-primary:focus {
-    --tw-ring-color: #D81B60 !important;
+/* ── Dark toggle button ───────────────────────────────────────────────────── */
+#dark-toggle {
+    flex-shrink: 0;
+    min-width: 2.75rem;
 }

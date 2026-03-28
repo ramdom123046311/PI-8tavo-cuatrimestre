@@ -1,17 +1,14 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salud Materna - Mi Perfil</title>
-    <!-- Tailwind CSS -->
+    <title>Salud Materna - Mis Datos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
 
@@ -23,7 +20,7 @@
 
     <!-- Sidebar -->
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 lg:translate-x-0">
+        class="sidebar fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 lg:translate-x-0">
 
         <!-- Header Sidebar -->
         <div class="p-6 border-b border-gray-100 flex items-center justify-between lg:justify-start">
@@ -33,10 +30,9 @@
                 </div>
                 <div>
                     <h2 class="text-pink-primary font-bold leading-tight">Salud Materna</h2>
-                    <p class="text-xs text-gray-500">Paciente</p>
+                    <p class="text-xs text-gray-500 sidebar-subtitle">Paciente</p>
                 </div>
             </div>
-            <!-- Close btn for mobile -->
             <button class="lg:hidden text-gray-400 hover:text-gray-600" @click="sidebarOpen = false">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
@@ -44,19 +40,23 @@
 
         <!-- User Info -->
         <div class="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+            <div id="sidebar-avatar-wrap" class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('patient_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full" id="sidebar-avatar-img">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5" id="sidebar-avatar-icon"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-800">María González</p>
-                <p class="text-xs text-gray-500">paciente@demo.com</p>
+                <p class="text-sm font-bold text-gray-800 sidebar-user-name">{{ session.get('nombre', 'Paciente') }}</p>
+                <p class="text-xs text-gray-500 sidebar-user-email">{{ session.get('correo', '') }}</p>
             </div>
         </div>
 
         <!-- Navbar Menu -->
         <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
             <a href="/patient/dashboard"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="layout-grid" class="w-5 h-5"></i> Inicio
             </a>
             <a href="/patient/profile"
@@ -64,45 +64,46 @@
                 <i data-lucide="file-text" class="w-5 h-5"></i> Mis Datos
             </a>
             <a href="/patient/specialists"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="users" class="w-5 h-5"></i> Especialistas
             </a>
             <a href="/patient/appointments"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="calendar" class="w-5 h-5"></i> Citas
             </a>
             <a href="/patient/chat"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="message-square" class="w-5 h-5"></i> Mensajes
             </a>
             <a href="/patient/articles"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="book-open" class="w-5 h-5"></i> Artículos
             </a>
             <a href="/patient/tips"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="help-circle" class="w-5 h-5"></i> Consejos
             </a>
             <a href="/patient/about"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                class="nav-link flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="info" class="w-5 h-5"></i> Sobre Nosotros
             </a>
         </nav>
 
         <!-- Logout -->
-        <div class="p-4 border-t border-gray-100">
-            <a href="/login"
+        <div class="p-4 border-t border-gray-100 sidebar-footer">
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
             </a>
         </div>
+
     </aside>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
 
-        <!-- Mobile Header (Visible only on mobile) -->
-        <header class="lg:hidden bg-white h-16 border-b border-gray-100 flex items-center justify-between px-4 z-30">
+        <!-- Mobile Header -->
+        <header class="mobile-header lg:hidden bg-white h-16 border-b border-gray-100 flex items-center justify-between px-4 z-30">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-pink-primary rounded-full flex items-center justify-center text-white">
                     <i data-lucide="heart" class="w-4 h-4"></i>
@@ -114,128 +115,171 @@
             </button>
         </header>
 
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="px-4 md:px-8 pt-4">
+            {% for msg in messages %}
+            <div class="flash-msg mb-2 px-4 py-3 rounded-lg text-sm font-semibold
+                {{ 'bg-green-50 text-green-800 border border-green-200' if '✅' in msg else 'bg-red-50 text-red-800 border border-red-200' }}">
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <!-- Page Content -->
         <main class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-6xl mx-auto space-y-6">
 
-                <!-- Main Title Component -->
+                <!-- Title -->
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold text-pink-primary mb-1">Mi Perfil</h1>
-                    <p class="text-sm text-gray-500">Gestiona tu información personal y preferencias</p>
+                    <h1 class="page-title text-2xl font-bold text-pink-primary mb-1">Mis Datos</h1>
+                    <p class="page-subtitle text-sm text-gray-500">Gestiona tu información personal</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- FORM wraps all editable content -->
+                <form id="profile-form" method="POST" action="/patient/profile" enctype="multipart/form-data">
 
-                    <!-- Profile Photo Box -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
-                        <h3 class="w-full text-left font-bold text-pink-primary mb-6">Foto de Perfil</h3>
-                        <div
-                            class="w-32 h-32 rounded-full bg-pink-light flex items-center justify-center mb-8 relative">
-                            <i data-lucide="user" class="w-16 h-16 text-purple-700"></i>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                        <!-- ── Foto de Perfil ─────────────────────────────── -->
+                        <div class="card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center">
+                            <h3 class="card-title w-full text-left font-bold text-pink-primary mb-6">Foto de Perfil</h3>
+
+                            <!-- Avatar preview -->
+                            <div class="w-32 h-32 rounded-full bg-pink-light flex items-center justify-center mb-6 relative overflow-hidden" id="avatar-wrapper">
+                                <i data-lucide="user" class="w-16 h-16 text-purple-700 {% if session.get('tiene_foto') %}hidden{% endif %}" id="avatar-icon"></i>
+                                <img src="{% if session.get('tiene_foto') %}{{ url_for('patient_avatar') }}{% endif %}" 
+                                     alt="foto de perfil"
+                                     class="w-32 h-32 object-cover rounded-full {% if not session.get('tiene_foto') %}hidden{% endif %}" 
+                                     id="avatar-preview"
+                                     onerror="this.classList.add('hidden'); document.getElementById('avatar-icon').classList.remove('hidden');">
+                            </div>
+
+                            <!-- Hidden file input -->
+                            <input type="file" id="foto-input" name="foto" accept=".jpg,.jpeg,.png,.webp" class="hidden">
+
+                            <button type="button" id="btn-change-photo"
+                                class="w-full py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                                <i data-lucide="camera" class="w-4 h-4"></i> Cambiar Foto
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2 text-center">JPG, PNG o WEBP. Máx. 5MB</p>
                         </div>
-                        <button
-                            class="w-full py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                            <i data-lucide="camera" class="w-4 h-4"></i> Cambiar Foto
+
+                        <!-- ── Información Personal ───────────────────────── -->
+                        <div class="card lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                            <h3 class="card-title font-bold text-pink-primary mb-6">Información Personal</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                                <!-- Nombre (editable) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Nombre</label>
+                                    <input type="text" name="nombre" id="input-nombre"
+                                        value="{{ user.nombre|default('') }}"
+                                        class="field-input w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary border border-transparent focus:border-pink-primary transition">
+                                </div>
+
+                                <!-- Apellidos (editable) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Apellidos</label>
+                                    <input type="text" name="apellido_paterno" id="input-apellido"
+                                        value="{{ user.apellido_paterno|default('') }}"
+                                        class="field-input w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary border border-transparent focus:border-pink-primary transition">
+                                </div>
+
+                                <!-- Email (readonly) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Email</label>
+                                    <div class="relative">
+                                        <input type="email"
+                                            value="{{ user.correo|default('') }}"
+                                            class="field-readonly w-full bg-gray-100 px-4 py-2.5 rounded-lg text-sm text-gray-400 cursor-not-allowed outline-none pr-10"
+                                            disabled>
+                                        <i data-lucide="lock" class="w-4 h-4 text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1 px-1">No se puede modificar</p>
+                                </div>
+
+                                <!-- Teléfono (editable) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Teléfono</label>
+                                    <input type="text" name="telefono" id="input-telefono"
+                                        value="{{ user.telefono|default('') }}"
+                                        class="field-input w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary border border-transparent focus:border-pink-primary transition">
+                                </div>
+
+                                <!-- Fecha de Nacimiento (readonly) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Fecha de Nacimiento</label>
+                                    <div class="relative">
+                                        <input type="text"
+                                            value="{{ user.fecha_nacimiento|default('') }}"
+                                            class="field-readonly w-full bg-gray-100 px-4 py-2.5 rounded-lg text-sm text-gray-400 cursor-not-allowed outline-none pr-10"
+                                            disabled>
+                                        <i data-lucide="lock" class="w-4 h-4 text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1 px-1">No se puede modificar</p>
+                                </div>
+
+                                <!-- Sexo Biológico (readonly) -->
+                                <div>
+                                    <label class="field-label text-xs font-bold text-gray-700 block mb-2 px-1">Sexo Biológico</label>
+                                    <div class="relative">
+                                        <input type="text"
+                                            value="{{ user.genero|default('')|capitalize }}"
+                                            class="field-readonly w-full bg-gray-100 px-4 py-2.5 rounded-lg text-sm text-gray-400 cursor-not-allowed outline-none pr-10"
+                                            disabled>
+                                        <i data-lucide="lock" class="w-4 h-4 text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1 px-1">No se puede modificar</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Configuración ──────────────────────────────────── -->
+                    <div class="card bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-6">
+                        <h3 class="card-title font-bold text-pink-primary mb-6">Configuración</h3>
+                        <div class="space-y-4">
+                            <!-- Dark mode toggle -->
+                            <div class="setting-row flex items-center justify-between p-4 bg-pink-light rounded-xl">
+                                <div class="flex gap-3 items-start">
+                                    <i data-lucide="moon" class="w-5 h-5 text-pink-primary mt-0.5" id="dark-icon"></i>
+                                    <div>
+                                        <p class="setting-label font-bold text-sm text-gray-800">Modo Oscuro</p>
+                                        <p class="setting-desc text-xs text-gray-500 leading-snug">Cambia el tema de la aplicación</p>
+                                    </div>
+                                </div>
+                                <!-- Toggle funcional -->
+                                <button type="button" id="dark-toggle"
+                                    class="w-11 h-6 rounded-full relative cursor-pointer outline-none flex items-center transition-colors duration-300 bg-gray-200"
+                                    role="switch" aria-checked="false">
+                                    <div id="dark-thumb"
+                                        class="w-4 h-4 bg-white rounded-full absolute left-1 shadow-sm transition-transform duration-300">
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Guardar ────────────────────────────────────────── -->
+                    <div class="flex justify-start pt-4">
+                        <button type="submit" id="btn-save"
+                            class="px-8 py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            Guardar Cambios
                         </button>
                     </div>
 
-                    <!-- Personal Information Box -->
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h3 class="font-bold text-pink-primary mb-6">Información Personal</h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Nombre</label>
-                                <input type="text" value="María"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Apellidos</label>
-                                <input type="text" value="González"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Email</label>
-                                <input type="email" value="paciente@demo.com"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 cursor-not-allowed outline-none focus:ring-1 focus:ring-pink-primary"
-                                    disabled>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Teléfono</label>
-                                <input type="text" value="+34 612 345 678"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Fecha de
-                                    Nacimiento</label>
-                                <input type="text" value="15/03/1995"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-800 outline-none focus:ring-1 focus:ring-pink-primary">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-gray-700 block mb-2 px-1">Sexo Biológico</label>
-                                <input type="text" value="Femenino"
-                                    class="w-full bg-gray-50 px-4 py-2.5 rounded-lg text-sm text-gray-500 cursor-not-allowed outline-none focus:ring-1 focus:ring-pink-primary"
-                                    disabled>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Settings Box -->
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mt-6">
-                    <h3 class="font-bold text-pink-primary mb-6">Configuración</h3>
-
-                    <div class="space-y-4">
-                        <!-- Switch toggle dark mode -->
-                        <div class="flex items-center justify-between p-4 bg-pink-light rounded-xl">
-                            <div class="flex gap-3">
-                                <i data-lucide="sun" class="w-5 h-5 text-pink-primary mt-0.5"></i>
-                                <div>
-                                    <p class="font-bold text-sm text-gray-800">Modo Oscuro</p>
-                                    <p class="text-xs text-gray-500 leading-snug">Cambia el tema de la aplicación</p>
-                                </div>
-                            </div>
-                            <!-- Simple toggle -->
-                            <button
-                                class="w-11 h-6 bg-gray-200 rounded-full relative cursor-pointer outline-none flex items-center">
-                                <div
-                                    class="w-4 h-4 bg-white rounded-full absolute left-1 shadow-sm transition-transform">
-                                </div>
-                            </button>
-                        </div>
-
-                        <!-- Select dropdown -->
-                        <div class="flex items-center justify-between p-4 bg-pink-light rounded-xl">
-                            <div class="flex gap-3">
-                                <i data-lucide="globe" class="w-5 h-5 text-pink-primary mt-0.5"></i>
-                                <div>
-                                    <p class="font-bold text-sm text-gray-800">Idioma</p>
-                                    <p class="text-xs text-gray-500 leading-snug">Selecciona tu idioma preferido</p>
-                                </div>
-                            </div>
-                            <select
-                                class="bg-gray-100 text-sm font-bold text-gray-700 py-1.5 px-3 rounded-lg border-none outline-none cursor-pointer">
-                                <option>Español</option>
-                                <option>Inglés</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Save Changes -->
-                <div class="flex justify-start pt-2">
-                    <button
-                        class="px-6 py-2.5 bg-pink-primary text-white font-bold rounded-lg text-sm outline-none hover:opacity-90 transition-opacity">
-                        Guardar Cambios
-                    </button>
-                </div>
-
+                </form>
             </div>
         </main>
     </div>
 
-    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 </body>
 

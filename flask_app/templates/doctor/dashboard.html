@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor-dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor_dashboard.css') }}">
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -41,43 +42,57 @@
         </div>
 
         <!-- User Info -->
-        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3 bg-white">
+            <div class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('doctor_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-xs font-bold text-gray-800">Dr. Carlos Ramírez</p>
-                <p class="text-[10px] text-gray-500">doctor@demo.com</p>
+                <p class="text-xs font-bold text-gray-800">Dr(a). {{ session.get('nombre', 'Médico') }}</p>
+                <p class="text-[10px] text-gray-500">{{ session.get('correo', 'correo@demo.com') }}</p>
             </div>
         </div>
 
         <!-- Navbar Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto w-full">
+        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto w-full">
             <a href="/doctor/dashboard"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-white bg-pink-primary rounded-lg transition-colors font-bold shadow-sm">
-                <i data-lucide="layout-grid" class="w-4 h-4"></i> Inicio
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-white bg-pink-primary rounded-lg transition-colors font-bold shadow-sm">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Inicio
+            </a>
+              <a href="/doctor/profile"
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> Mis Datos
             </a>
             <a href="/doctor/appointments"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
-                <i data-lucide="calendar" class="w-4 h-4"></i> Gestión de Citas
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Gestión de Citas
             </a>
             <a href="/doctor/patients"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
-                <i data-lucide="users" class="w-4 h-4"></i> Mis Pacientes
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i> Mis Pacientes
             </a>
             <a href="/doctor/chat"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
-                <i data-lucide="message-square" class="w-4 h-4"></i> Mensajería
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Mensajería
             </a>
             <a href="/doctor/content"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
-                <i data-lucide="edit-3" class="w-4 h-4"></i> Crear Contenido
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Crear Contenido
             </a>
         </nav>
 
         <!-- Logout -->
-        <div class="p-6 w-full">
-            <a href="/login"
+        <div class="p-6 w-full space-y-3">
+            <button id="dark-toggle-btn" type="button"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                data-dark="false" data-label="label">
+                <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                <span data-label="true">Modo Oscuro</span>
+            </button>
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2.5 w-full text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
                 <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Cerrar Sesión
             </a>
@@ -105,7 +120,8 @@
             <div class="max-w-6xl mx-auto">
 
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold text-pink-primary mb-1">Bienvenido, Dr. Ramírez</h1>
+                    <h1 class="text-2xl font-bold text-pink-primary mb-1">Bienvenido, {{ session.get('nombre', 'Médico')
+                        }}</h1>
                     <p class="text-sm text-gray-500">Resume tu actividad y próximos eventos</p>
                 </div>
 
@@ -114,8 +130,8 @@
                         <div class="w-12 h-12 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center"><i
                                 data-lucide="calendar" class="w-6 h-6"></i></div>
                         <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Citas Hoy</p>
-                            <p class="text-2xl font-bold text-gray-800">4</p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Citas Totales</p>
+                            <p class="text-2xl font-bold text-gray-800">{{ total_citas }}</p>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
@@ -125,7 +141,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Pacientes</p>
-                            <p class="text-2xl font-bold text-gray-800">28</p>
+                            <p class="text-2xl font-bold text-gray-800">{{ pacientes }}</p>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
@@ -135,7 +151,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Mensajes</p>
-                            <p class="text-2xl font-bold text-gray-800">3</p>
+                            <p class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
                 </div>
@@ -144,33 +160,10 @@
         </main>
     </div>
 
-    <!-- Terms and Conditions Modal -->
-    <div id="terms-modal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex hidden items-center justify-center p-4 z-50 transition-opacity">
-        <div
-            class="bg-white rounded-xl shadow-lg w-full max-w-md border border-gray-100 p-8 text-center animate-fade-in-up">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-pink-100 mb-4">
-                <i data-lucide="shield-check" class="h-6 w-6 text-pink-primary"></i>
-            </div>
-            <h2 class="text-xl font-bold text-gray-800 mb-2">Términos y Condiciones</h2>
-            <p class="text-sm text-gray-600 mb-6">
-                Para continuar utilizando nuestra plataforma, debes aceptar nuestros términos y condiciones de uso, así
-                como nuestras políticas de privacidad.
-            </p>
-            <div class="flex gap-4 w-full">
-                <button id="btn-reject-terms"
-                    class="w-1/2 py-2 rounded-lg border-2 border-gray-200 text-gray-600 font-semibold transition-all hover:bg-gray-50">
-                    Rechazar
-                </button>
-                <button id="btn-accept-terms"
-                    class="w-1/2 py-2 rounded-lg bg-pink-primary text-white font-semibold transition-all hover:opacity-90">
-                    Aceptar
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <script src="{{ url_for('static', filename='js/doctor_dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/doctor-dark-mode.js') }}"></script>
 </body>
 
 </html>

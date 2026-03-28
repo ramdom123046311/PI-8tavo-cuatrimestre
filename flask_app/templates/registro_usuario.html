@@ -54,40 +54,71 @@
                 <button type="button" class="btn-close-modal text-gray-500 hover:text-red-500"><i
                         data-lucide="x"></i></button>
             </div>
-            <form id="form-medico" action="/login" method="GET" class="space-y-4">
+            <form id="form-medico" action="/registro" method="POST" class="space-y-4">
+                <input type="hidden" name="id_rol" value="2">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo</label>
-                    <input type="text" required
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nombre</label>
+                    <input type="text" name="nombre" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Cédula Profesional</label>
-                    <input type="text" required
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Apellido Paterno</label>
+                    <input type="text" name="apellido_paterno" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Género</label>
+                    <select name="genero" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                        <option value="">Selecciona tu género</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" id="fecha-medico" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono</label>
+                    <input type="text" name="telefono" required pattern="\d{10}" maxlength="10" minlength="10" title="Debe contener exactamente 10 dígitos" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Correo Electrónico</label>
-                    <input type="email" required
+                    <input type="email" name="correo" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Contraseña</label>
-                    <input type="password" required
+                    <input type="password" name="contrasena" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Ciudad</label>
-                    <input type="text" required
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Cédula Profesional</label>
+                    <input type="text" name="cp" required pattern="\d{11}" maxlength="11" minlength="11" title="Debe contener exactamente 11 dígitos"
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Especialidad</label>
-                    <input type="text" required
+                    <select name="especialidad" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                        <option value="">Selecciona tu especialidad</option>
+                        <option value="Pediatria">Pediatría</option>
+                        <option value="Ginecologia">Ginecología</option>
+                        <option value="Psicologia">Psicología</option>
+                        <option value="Medico General">Médico General</option>
+                        <option value="Otorrinolaringologo">Otorrinolaringólogo</option>
+                        <option value="Quirurgico">Quirúrgico</option>
+                        <option value="Traumatologo">Traumatólogo</option>
+                        <option value="Cardiologo">Cardiólogo</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Fotografía (URL o Archivo)</label>
-                    <input type="file" accept="image/*"
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Años de Experiencia</label>
+                    <input type="number" name="anios_experiencia" min="0" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <button type="submit"
@@ -108,30 +139,46 @@
                 <button type="button" class="btn-close-modal text-gray-500 hover:text-red-500"><i
                         data-lucide="x"></i></button>
             </div>
-            <form action="/login" method="GET" class="space-y-4">
+            <form id="form-paciente" action="/registro" method="POST" class="space-y-4">
+                <input type="hidden" name="id_rol" value="1">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo</label>
-                    <input type="text" required
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nombre</label>
+                    <input type="text" name="nombre" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">INE</label>
-                    <input type="text" required
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Apellido Paterno</label>
+                    <input type="text" name="apellido_paterno" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Género</label>
+                    <select name="genero" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                        <option value="">Selecciona tu género</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" id="fecha-paciente" required
+                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono</label>
+                    <input type="text" name="telefono" required pattern="\d{10}" maxlength="10" minlength="10" title="Debe contener exactamente 10 dígitos" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Correo Electrónico</label>
-                    <input type="email" required
+                    <input type="email" name="correo" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Contraseña</label>
-                    <input type="password" required
-                        class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Número de Contacto</label>
-                    <input type="tel" required
+                    <input type="password" name="contrasena" required
                         class="w-full px-4 py-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-pink-primary text-sm outline-none">
                 </div>
                 <button type="submit"

@@ -11,7 +11,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Restaurar dark mode antes del primer render para evitar flash -->
+    <script>if(localStorage.getItem('sm_dark_mode')==='true'){document.documentElement.classList.add('dark');}</script>
+
 </head>
 
 <body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false }">
@@ -41,12 +45,16 @@
 
         <!-- User Info -->
         <div class="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+            <div id="sidebar-avatar-wrap" class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('patient_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full" id="sidebar-avatar-img">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5" id="sidebar-avatar-icon"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-800">María González</p>
-                <p class="text-xs text-gray-500">paciente@demo.com</p>
+                <p class="text-sm font-bold text-gray-800">{{ session.get('nombre', 'Paciente') }}</p>
+                <p class="text-xs text-gray-500">{{ session.get('correo', 'paciente@demo.com') }}</p>
             </div>
         </div>
 
@@ -88,7 +96,7 @@
 
         <!-- Logout -->
         <div class="p-4 border-t border-gray-100">
-            <a href="/login"
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
             </a>
@@ -115,7 +123,8 @@
         <main class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-6xl mx-auto">
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold text-pink-primary mb-1">¡Hola, María!</h1>
+                    <h1 class="text-2xl font-bold text-pink-primary mb-1">¡Hola, {{ session.get('nombre', 'Paciente')
+                        }}!</h1>
                     <p class="text-sm text-gray-500">Bienvenida de nuevo a tu portal de salud materna</p>
                 </div>
 
@@ -128,9 +137,9 @@
                             <i data-lucide="calendar" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Próxima Cita</p>
-                            <p class="text-sm font-bold text-gray-800">15 Mar - 10:00 AM</p>
-                            <p class="text-xs text-pink-primary font-semibold mt-1">Dra. Ana Martínez</p>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Citas Programadas
+                            </p>
+                            <p class="text-2xl font-bold text-gray-800">{{ total_citas }}</p>
                         </div>
                     </div>
 
@@ -143,7 +152,7 @@
                         <div>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Artículos Leídos
                             </p>
-                            <p class="text-2xl font-bold text-gray-800">12</p>
+                            <p class="text-2xl font-bold text-gray-800">0</p>
                         </div>
                     </div>
 
@@ -192,31 +201,7 @@
         </main>
     </div>
 
-    <!-- Terms and Conditions Modal -->
-    <div id="terms-modal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex hidden items-center justify-center p-4 z-50 transition-opacity">
-        <div
-            class="bg-white rounded-xl shadow-lg w-full max-w-md border border-gray-100 p-8 text-center animate-fade-in-up">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-pink-100 mb-4">
-                <i data-lucide="shield-check" class="h-6 w-6 text-pink-primary"></i>
-            </div>
-            <h2 class="text-xl font-bold text-gray-800 mb-2">Términos y Condiciones</h2>
-            <p class="text-sm text-gray-600 mb-6">
-                Para continuar utilizando nuestra plataforma, debes aceptar nuestros términos y condiciones de uso, así
-                como nuestras políticas de privacidad.
-            </p>
-            <div class="flex gap-4 w-full">
-                <button id="btn-reject-terms"
-                    class="w-1/2 py-2 rounded-lg border-2 border-gray-200 text-gray-600 font-semibold transition-all hover:bg-gray-50">
-                    Rechazar
-                </button>
-                <button id="btn-accept-terms"
-                    class="w-1/2 py-2 rounded-lg bg-pink-primary text-white font-semibold transition-all hover:opacity-90">
-                    Aceptar
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>

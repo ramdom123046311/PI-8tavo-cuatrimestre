@@ -11,7 +11,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/specialists.css') }}">
+    <script>if(localStorage.getItem('sm_dark_mode')==='true'){document.documentElement.classList.add('dark');}</script>
+
 </head>
 
 <body class="bg-pink-light min-h-screen font-nunito flex" x-data="{ sidebarOpen: false }">
@@ -42,12 +45,16 @@
 
         <!-- User Info -->
         <div class="p-5 border-b border-gray-100 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center">
-                <i data-lucide="user" class="w-5 h-5"></i>
+            <div id="sidebar-avatar-wrap" class="w-10 h-10 rounded-full bg-pink-light text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('patient_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full" id="sidebar-avatar-img">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5" id="sidebar-avatar-icon"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-sm font-bold text-gray-800">María González</p>
-                <p class="text-xs text-gray-500">paciente@demo.com</p>
+                <p class="text-sm font-bold text-gray-800">{{ session.get('nombre', 'Paciente') }}</p>
+                <p class="text-xs text-gray-500">{{ session.get('correo', 'paciente@demo.com') }}</p>
             </div>
         </div>
 
@@ -89,7 +96,7 @@
 
         <!-- Logout -->
         <div class="p-4 border-t border-gray-100">
-            <a href="/login"
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-sm font-semibold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-light transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4 text-pink-primary"></i> Cerrar Sesión
             </a>
@@ -123,152 +130,50 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                    <!-- Specialist 1 -->
+                    {% for medico in medicos %}
+                    <!-- Specialist card -->
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex gap-4 mb-6">
-                            <div class="w-14 h-14 rounded-full bg-pink-light flex items-center justify-center text-2xl">
+                        <div class="flex gap-4 mb-5">
+                            <div class="w-14 h-14 rounded-full bg-pink-light flex items-center justify-center text-2xl flex-shrink-0">
                                 👩‍⚕️</div>
                             <div>
-                                <h3 class="font-bold text-pink-primary">Dra. Ana Martínez</h3>
-                                <p class="text-xs text-gray-500">Ginecología y Obstetricia</p>
-                                <p class="text-xs text-gray-500">15 años de experiencia</p>
-                                <div class="flex items-center gap-1 mt-1 text-yellow-400">
-                                    <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                    <span class="text-xs font-bold text-gray-700">4.9</span>
-                                </div>
+                                <h3 class="font-bold text-pink-primary">Dr(a). {{ medico.nombre_completo }}</h3>
+                                <p class="text-xs text-gray-500 font-semibold mt-0.5">{{ medico.especialidad }}</p>
+                                {% if medico.anios_experiencia %}
+                                <p class="text-xs text-gray-400 mt-0.5">{{ medico.anios_experiencia }} años de experiencia</p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="space-y-2 mb-6">
                             <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-pink-primary"></i> Hospital Central, Madrid
+                                <i data-lucide="map-pin" class="w-4 h-4 text-pink-primary flex-shrink-0"></i> Consultorio Principal
                             </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="phone" class="w-4 h-4 text-pink-primary"></i> +34 678 901 234
+                            {% if medico.descripcion_profesional %}
+                            <div class="flex items-start gap-2 text-xs text-gray-600 line-clamp-2" title="{{ medico.descripcion_profesional }}">
+                                <i data-lucide="info" class="w-4 h-4 text-pink-primary min-w-4 mt-px"></i>
+                                {{ medico.descripcion_profesional }}
                             </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="mail" class="w-4 h-4 text-pink-primary"></i> ana.martinez@hospital.com
-                            </div>
+                            {% endif %}
                         </div>
                         <div class="mt-auto flex gap-3">
-                            <button
-                                class="flex-1 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Solicitar
-                                Cita</button>
-                            <button
-                                class="w-10 flex items-center justify-center border border-pink-primary text-pink-primary rounded-lg hover:bg-pink-light transition-colors"><i
-                                    data-lucide="mail" class="w-4 h-4"></i></button>
+                            <a href="/patient/appointments?medico={{ medico.id_medico }}"
+                                class="flex-1 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2">
+                                <i data-lucide="calendar-plus" class="w-4 h-4"></i> Solicitar Cita
+                            </a>
+                            <a href="/patient/chat/start/{{ medico.id_medico }}"
+                                class="w-10 flex items-center justify-center border border-pink-primary text-pink-primary rounded-lg hover:bg-pink-light transition-colors">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                            </a>
                         </div>
                     </div>
-
-                    <!-- Specialist 2 -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex gap-4 mb-6">
-                            <div class="w-14 h-14 rounded-full bg-pink-light flex items-center justify-center text-2xl">
-                                👨‍⚕️</div>
-                            <div>
-                                <h3 class="font-bold text-pink-primary">Dr. Carlos Ramírez</h3>
-                                <p class="text-xs text-gray-500">Neonatología</p>
-                                <p class="text-xs text-gray-500">12 años de experiencia</p>
-                                <div class="flex items-center gap-1 mt-1 text-yellow-400">
-                                    <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                    <span class="text-xs font-bold text-gray-700">4.8</span>
-                                </div>
-                            </div>
+                    {% else %}
+                    <div class="col-span-2 bg-white p-10 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-16 h-16 bg-pink-50 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="user-x" class="w-8 h-8 text-pink-primary opacity-60"></i>
                         </div>
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-pink-primary"></i> Clínica Maternal,
-                                Barcelona
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="phone" class="w-4 h-4 text-pink-primary"></i> +34 045 123 456
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="mail" class="w-4 h-4 text-pink-primary"></i> carlos.ramirez@clinica.com
-                            </div>
-                        </div>
-                        <div class="mt-auto flex gap-3">
-                            <button
-                                class="flex-1 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Solicitar
-                                Cita</button>
-                            <button
-                                class="w-10 flex items-center justify-center border border-pink-primary text-pink-primary rounded-lg hover:bg-pink-light transition-colors"><i
-                                    data-lucide="mail" class="w-4 h-4"></i></button>
-                        </div>
+                        <p class="font-bold text-gray-700">No hay especialistas disponibles en este momento.</p>
                     </div>
-
-                    <!-- Specialist 3 -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex gap-4 mb-6">
-                            <div class="w-14 h-14 rounded-full bg-pink-light flex items-center justify-center text-2xl">
-                                👩‍⚕️</div>
-                            <div>
-                                <h3 class="font-bold text-pink-primary">Dra. Laura Sánchez</h3>
-                                <p class="text-xs text-gray-500">Medicina Materno-Fetal</p>
-                                <p class="text-xs text-gray-500">10 años de experiencia</p>
-                                <div class="flex items-center gap-1 mt-1 text-yellow-400">
-                                    <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                    <span class="text-xs font-bold text-gray-700">4.9</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-pink-primary"></i> Hospital Universitario,
-                                Valencia
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="phone" class="w-4 h-4 text-pink-primary"></i> +34 612 345 678
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="mail" class="w-4 h-4 text-pink-primary"></i> laura.sanchez@hospital.com
-                            </div>
-                        </div>
-                        <div class="mt-auto flex gap-3">
-                            <button
-                                class="flex-1 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Solicitar
-                                Cita</button>
-                            <button
-                                class="w-10 flex items-center justify-center border border-pink-primary text-pink-primary rounded-lg hover:bg-pink-light transition-colors"><i
-                                    data-lucide="mail" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Specialist 4 -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex gap-4 mb-6">
-                            <div class="w-14 h-14 rounded-full bg-pink-light flex items-center justify-center text-2xl">
-                                👨‍⚕️</div>
-                            <div>
-                                <h3 class="font-bold text-pink-primary">Dr. Miguel Torres</h3>
-                                <p class="text-xs text-gray-500">Pediatría Neonatal</p>
-                                <p class="text-xs text-gray-500">18 años de experiencia</p>
-                                <div class="flex items-center gap-1 mt-1 text-yellow-400">
-                                    <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                    <span class="text-xs font-bold text-gray-700">5</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2 mb-6">
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-pink-primary"></i> Centro Médico Infantil,
-                                Sevilla
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="phone" class="w-4 h-4 text-pink-primary"></i> +34 689 456 789
-                            </div>
-                            <div class="flex items-center gap-2 text-xs text-gray-600">
-                                <i data-lucide="mail" class="w-4 h-4 text-pink-primary"></i> miguel.torres@centro.com
-                            </div>
-                        </div>
-                        <div class="mt-auto flex gap-3">
-                            <button
-                                class="flex-1 py-2.5 bg-pink-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Solicitar
-                                Cita</button>
-                            <button
-                                class="w-10 flex items-center justify-center border border-pink-primary text-pink-primary rounded-lg hover:bg-pink-light transition-colors"><i
-                                    data-lucide="mail" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
+                    {% endfor %}
 
                 </div>
 

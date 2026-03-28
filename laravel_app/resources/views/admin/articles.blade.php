@@ -109,6 +109,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($articulos as $articulo)
                         <tr>
                             <td class="py-3 px-4">
                                 <div class="d-flex align-items-center gap-3">
@@ -117,54 +118,34 @@
                                         <i data-lucide="book-open" class="icon-sm"></i>
                                     </div>
                                     <div class="text-wrap" style="max-width: 250px;">
-                                        <p class="fw-bold mb-0 text-truncate">Cuidados en el primer trimestre</p>
+                                        <p class="fw-bold mb-0 text-truncate">{{ $articulo['titulo'] }}</p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-4"><span class="text-muted">Dr. Roberto Sánchez</span></td>
-                            <td class="py-3 px-4"><span class="badge bg-light text-dark border">Obstetricia</span></td>
-                            <td class="py-3 px-4"><span
-                                    class="badge bg-success-subtle text-success border border-success">Publicado</span>
-                            </td>
-                            <td class="py-3 px-4 text-muted small">01 Mar 2026</td>
-                            <td class="py-3 px-4 text-end">
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
-                                    data-bs-target="#articleModal" title="Editar">
-                                    <i data-lucide="edit-2" class="icon-xs"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i data-lucide="trash-2" class="icon-xs"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
+                            <td class="py-3 px-4"><span class="text-muted">Médico #{{ $articulo['id_medico'] }}</span></td>
+                            <td class="py-3 px-4"><span class="badge bg-light text-dark border">{{ $articulo['categoria'] }}</span></td>
                             <td class="py-3 px-4">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div
-                                        class="bg-light-purple text-purple rounded-3 p-2 d-flex align-items-center justify-content-center">
-                                        <i data-lucide="book-open" class="icon-sm"></i>
-                                    </div>
-                                    <div class="text-wrap" style="max-width: 250px;">
-                                        <p class="fw-bold mb-0 text-truncate">Nutrición para el recién nacido</p>
-                                    </div>
-                                </div>
+                                @if($articulo['estatus'] == 1)
+                                <span class="badge bg-success-subtle text-success border border-success">Publicado</span>
+                                @else
+                                <span class="badge bg-warning-subtle text-warning border border-warning">Borrador</span>
+                                @endif
                             </td>
-                            <td class="py-3 px-4"><span class="text-muted">Dra. Patricia López</span></td>
-                            <td class="py-3 px-4"><span class="badge bg-light text-dark border">Pediatría</span></td>
-                            <td class="py-3 px-4"><span
-                                    class="badge bg-warning-subtle text-warning border border-warning">Borrador</span>
-                            </td>
-                            <td class="py-3 px-4 text-muted small">05 Mar 2026</td>
+                            <td class="py-3 px-4 text-muted small">{{ date('d M Y', strtotime($articulo['created_at'])) }}</td>
                             <td class="py-3 px-4 text-end">
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
-                                    data-bs-target="#articleModal" title="Editar">
-                                    <i data-lucide="edit-2" class="icon-xs"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i data-lucide="trash-2" class="icon-xs"></i>
-                                </button>
+                                <form action="{{ url('admin/articles/'.$articulo['id_articulo'].'/delete') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                        <i data-lucide="trash-2" class="icon-xs"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No hay artículos publicados.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -180,48 +161,52 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                <div class="modal-body">
+                    <form id="createArticleForm" method="POST" action="{{ url('admin/articles') }}">
+                        @csrf
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Título del Artículo</label>
-                            <input type="text" class="form-control rounded-3"
+                            <input type="text" name="titulo" class="form-control rounded-3"
                                 placeholder="Ej. Beneficios de la lactancia materna" required>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-muted small fw-bold">Autor (ID Médico)</label>
+                                <select name="id_medico" class="form-select rounded-3" required>
+                                    @foreach($medicos as $medico)
+                                        <option value="{{ $medico['id_medico'] }}">Médico #{{ $medico['id_medico'] }} - ID User: {{ $medico['id_usuario'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label text-muted small fw-bold">Categoría</label>
-                                <select class="form-select rounded-3">
+                                <select name="categoria" class="form-select rounded-3">
                                     <option value="obstetricia">Obstetricia</option>
                                     <option value="pediatria">Pediatría</option>
                                     <option value="nutricion">Nutrición</option>
                                     <option value="psicologia">Psicología</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label text-muted small fw-bold">Estado</label>
-                                <select class="form-select rounded-3">
-                                    <option value="publicado">Publicado</option>
-                                    <option value="borrador">Borrador</option>
-                                    <option value="revision">En Revisión</option>
+                                <select name="estatus" class="form-select rounded-3">
+                                    <option value="1">Publicado</option>
+                                    <option value="0">Borrador</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Contenido</label>
-                            <textarea class="form-control rounded-3" rows="6"
-                                placeholder="Escribe el contenido del artículo aquí..."></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold">Imagen de Portada (Opcional)</label>
-                            <input class="form-control rounded-3" type="file">
+                            <textarea name="contenido" class="form-control rounded-3" rows="6"
+                                placeholder="Escribe el contenido del artículo aquí..." required></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-pink rounded-3 px-4">Guardar Artículo</button>
+                    <button type="submit" form="createArticleForm" class="btn btn-pink rounded-3 px-4">Guardar Artículo</button>
                 </div>
             </div>
         </div>

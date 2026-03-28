@@ -1,0 +1,130 @@
+/* ── dark-mode.css — Sistema global de modo oscuro — Salud Materna ──────────
+   Incluir en TODOS los archivos CSS de paciente.
+   El modo oscuro se activa añadiendo la clase `dark` al elemento <html>.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Variables globales (modo claro) ──────────────────────────────────────── */
+:root {
+    --pink-primary:  #D81B60;
+    --pink-light:    #FFF5F7;
+    --pink-50:       #fdf2f8;
+    --bg-body:       #FFF5F7;
+    --bg-card:       #ffffff;
+    --bg-input:      #f9fafb;
+    --bg-readonly:   #f3f4f6;
+    --text-main:     #1f2937;
+    --text-muted:    #6b7280;
+    --text-label:    #374151;
+    --text-disabled: #9ca3af;
+    --border-card:   #f3f4f6;
+    --sidebar-bg:    #ffffff;
+    --sidebar-border:#f3f4f6;
+    --setting-row:   #FFF5F7;
+}
+
+/* ── Variables modo oscuro ────────────────────────────────────────────────── */
+html.dark {
+    --bg-body:       #0f172a;
+    --bg-card:       #1e293b;
+    --bg-input:      #334155;
+    --bg-readonly:   #1e293b;
+    --text-main:     #f1f5f9;
+    --text-muted:    #94a3b8;
+    --text-label:    #cbd5e1;
+    --text-disabled: #64748b;
+    --border-card:   #334155;
+    --sidebar-bg:    #1e293b;
+    --sidebar-border:#334155;
+    --setting-row:   #0f172a;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  ESTILOS BASE — aplican siempre con variables que cambian según el modo    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* La regla más importante: el body siempre toma el color del tema */
+body,
+html {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Tailwind overrides ────────────────────────────────────────────────────── */
+.bg-pink-light     { background-color: var(--bg-body)      !important; }
+.bg-pink-primary   { background-color: var(--pink-primary)  !important; }
+.text-pink-primary { color:            var(--pink-primary)  !important; }
+.text-pink-500     { color: #ec4899                         !important; }
+.border-pink-primary{ border-color:    var(--pink-primary)  !important; }
+.bg-pink-50        { background-color: var(--bg-body)       !important; }
+.bg-white          { background-color: var(--bg-card)       !important; transition: background-color 0.3s ease; }
+.bg-gray-50        { background-color: var(--bg-input)      !important; }
+.bg-gray-100       { background-color: var(--bg-readonly)   !important; }
+
+/* Textos */
+.text-gray-900, .text-gray-800 { color: var(--text-main)   !important; }
+.text-gray-700, .text-gray-600 { color: var(--text-label)  !important; }
+.text-gray-500, .text-gray-400 { color: var(--text-muted)  !important; }
+
+/* Bordes */
+.border-gray-100, .border-gray-200 { border-color: var(--border-card) !important; }
+
+/* ── Layout containers ─────────────────────────────────────────────────────── */
+/* Asegura que el área de contenido principal también sea oscura */
+html.dark main,
+html.dark .flex-1,
+html.dark .overflow-y-auto,
+html.dark .overflow-hidden {
+    background-color: var(--bg-body) !important;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+aside {
+    background-color: var(--sidebar-bg)    !important;
+    border-color:     var(--sidebar-border)!important;
+    transition: background-color 0.3s ease;
+}
+
+/* ── Cards / Paneles ──────────────────────────────────────────────────────── */
+.rounded-2xl,
+.rounded-xl,
+.rounded-lg {
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Solo las tarjetas que son bg-white se vuelven oscuras */
+html.dark .bg-white {
+    background-color: var(--bg-card)    !important;
+    border-color:     var(--border-card)!important;
+}
+
+/* ── Header móvil ─────────────────────────────────────────────────────────── */
+header {
+    background-color: var(--bg-card)    !important;
+    border-color:     var(--border-card)!important;
+    transition: background-color 0.3s ease;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────────────── */
+input:not([disabled]),
+textarea:not([disabled]),
+select {
+    background-color: var(--bg-input) !important;
+    color:            var(--text-main)!important;
+    transition: background-color 0.3s ease;
+}
+input[disabled],
+textarea[disabled] {
+    background-color: var(--bg-readonly)   !important;
+    color:            var(--text-disabled) !important;
+}
+
+/* ── Nav links en sidebar ─────────────────────────────────────────────────── */
+html.dark .nav-link,
+html.dark a.text-gray-600 {
+    color: var(--text-muted) !important;
+}
+html.dark .nav-link:hover,
+html.dark a.hover\:bg-gray-50:hover {
+    background-color: var(--bg-input) !important;
+}

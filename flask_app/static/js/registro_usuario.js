@@ -36,23 +36,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Form submission
-    const formMedico = document.getElementById('form-medico');
-    const modalSuccess = document.getElementById('modal-success');
-    const btnCloseSuccess = document.getElementById('btn-close-success');
+    // Set max date for date inputs to today
+    const today = new Date().toISOString().split('T')[0];
+    const fechaMedico = document.getElementById('fecha-medico');
+    const fechaPaciente = document.getElementById('fecha-paciente');
+    if (fechaMedico) fechaMedico.setAttribute('max', today);
+    if (fechaPaciente) fechaPaciente.setAttribute('max', today);
 
-    if (formMedico) {
-        formMedico.addEventListener('submit', (e) => {
-            e.preventDefault();
-            modalMedico.classList.add('hidden');
-            modalSuccess.classList.remove('hidden');
+    // Form submission validation for date
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', (e) => {
+            const dateInput = form.querySelector('input[type="date"]');
+            if (dateInput) {
+                const selectedDate = dateInput.value;
+                if (selectedDate > today) {
+                    e.preventDefault();
+                    alert("La fecha de nacimiento no puede ser en el futuro.");
+                }
+            }
+            // For Doctors: ensure they're over 18 or some experience logic (optional, but requested only "validando que no puede haber nacido mañana")
         });
-    }
-
-    if (btnCloseSuccess) {
-        btnCloseSuccess.addEventListener('click', () => {
-            modalSuccess.classList.add('hidden');
-            window.location.href = '/login';
-        });
-    }
+    });
 });

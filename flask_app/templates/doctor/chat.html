@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor-dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor_chat.css') }}">
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -41,13 +42,17 @@
         </div>
 
         <!-- User Info -->
-        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="user" class="w-4 h-4"></i>
+        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3 bg-white">
+            <div class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('doctor_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-[11px] font-bold text-gray-800">Dr. Carlos Ramírez</p>
-                <p class="text-[9px] text-gray-500">doctor@demo.com</p>
+                <p class="text-[11px] font-bold text-gray-800">Dr(a). {{ session.get('nombre', 'Médico') }}</p>
+                <p class="text-[9px] text-gray-500">{{ session.get('correo', 'correo@demo.com') }}</p>
             </div>
         </div>
 
@@ -56,6 +61,10 @@
             <a href="/doctor/dashboard"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Inicio
+            </a>
+            <a href="/doctor/profile"
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> Mis Datos
             </a>
             <a href="/doctor/appointments"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
@@ -75,8 +84,14 @@
             </a>
         </nav>
 
-        <div class="p-6 w-full">
-            <a href="/login"
+        <div class="p-6 w-full space-y-3">
+            <button id="dark-toggle-btn" type="button"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                data-dark="false" data-label="label">
+                <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                <span data-label="true">Modo Oscuro</span>
+            </button>
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-[11px] font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
                 <i data-lucide="log-out" class="w-3 h-3"></i> Cerrar Sesión
             </a>
@@ -118,85 +133,13 @@
                             <h3 class="font-bold text-pink-primary text-sm">Conversaciones</h3>
                         </div>
 
-                        <div class="flex-1 overflow-y-auto p-2 space-y-1">
-
-                            <!-- Chat Tab Active -->
-                            <div class="flex items-center gap-3 p-3 bg-pink-50 rounded-xl cursor-pointer">
-                                <div class="relative w-10 h-10 flex-shrink-0">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-white border border-pink-100 text-purple-700 flex items-center justify-center">
-                                        <i data-lucide="user" class="w-5 h-5"></i>
-                                    </div>
-                                    <div
-                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white">
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-xs font-bold text-pink-primary flex justify-between">María González
-                                    </h4>
-                                    <p class="text-[10px] text-gray-500 truncate font-semibold mt-0.5">Gracias por la
-                                        información</p>
-                                </div>
-                                <div
-                                    class="w-5 h-5 rounded-full bg-pink-primary text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                                    2
-                                </div>
-                            </div>
-
-                            <!-- Chat Tab Normal 1 -->
-                            <div
-                                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gray-100 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="user" class="w-5 h-5"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-xs font-bold text-gray-800 flex justify-between">Carmen López</h4>
-                                    <p class="text-[10px] text-gray-500 truncate mt-0.5">¿Cuándo es mi próxima cita?</p>
-                                </div>
-                                <div
-                                    class="w-5 h-5 rounded-full bg-pink-primary text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                                    1
-                                </div>
-                            </div>
-
-                            <!-- Chat Tab Normal 2 -->
-                            <div
-                                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors">
-                                <div class="relative w-10 h-10 flex-shrink-0">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-gray-100 text-purple-700 flex items-center justify-center">
-                                        <i data-lucide="user" class="w-5 h-5"></i>
-                                    </div>
-                                    <div
-                                        class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white">
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-xs font-bold text-gray-800 flex justify-between">Isabel Martín</h4>
-                                    <p class="text-[10px] text-gray-500 truncate mt-0.5">Perfecto, nos vemos entonces
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Chat Tab Normal 3 -->
-                            <div
-                                class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gray-100 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="user" class="w-5 h-5"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-xs font-bold text-gray-800 flex justify-between">Ana Ruiz</h4>
-                                    <p class="text-[10px] text-gray-500 truncate mt-0.5">Muchas gracias doctor</p>
-                                </div>
-                            </div>
-
+                        <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chat-list">
+                            <p class="text-xs text-gray-500 text-center mt-4" id="no-chats-msg" style="display: none;">No tienes chats activos.</p>
                         </div>
                     </div>
 
                     <!-- Chat Box Component -->
-                    <div
+                    <div id="chat-box-container" style="display: none;"
                         class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col overflow-hidden h-full">
 
                         <!-- Header Chat Box -->
@@ -206,70 +149,24 @@
                                 <i data-lucide="user" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-pink-primary text-sm leading-tight">María González</h3>
-                                <p
+                                <h3 class="font-bold text-pink-primary text-sm leading-tight" id="active-chat-name">Selecciona un paciente</h3>
+                                <p id="active-chat-status"
                                     class="text-[10px] text-gray-500 font-semibold tracking-wide flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> En línea</p>
                             </div>
                         </div>
 
                         <!-- Chat thread -->
-                        <div class="flex-1 overflow-y-auto p-6 space-y-6">
-
-                            <!-- Chat Bubble Other -->
-                            <div class="flex flex-col items-start gap-1 max-w-[80%]">
-                                <div
-                                    class="px-5 py-3 bg-gray-100 rounded-2xl rounded-tl-sm text-xs text-gray-800 font-semibold shadow-sm leading-relaxed">
-                                    Buenos días doctor, tengo una consulta
-                                </div>
-                                <span class="text-[9px] text-gray-400 font-bold ml-1">09:30</span>
-                            </div>
-
-                            <!-- Chat Bubble Mine -->
-                            <div class="flex flex-col items-end gap-1 max-w-[80%] self-end ml-auto">
-                                <div
-                                    class="px-5 py-3 bg-pink-primary text-white rounded-2xl rounded-tr-sm text-xs font-bold shadow-sm leading-relaxed">
-                                    Buenos días María, dígame en qué puedo ayudarla
-                                </div>
-                                <span class="text-[9px] text-gray-400 font-bold mr-1">09:32</span>
-                            </div>
-
-                            <!-- Chat Bubble Other -->
-                            <div class="flex flex-col items-start gap-1 max-w-[80%]">
-                                <div
-                                    class="px-5 py-3 bg-gray-100 rounded-2xl rounded-tl-sm text-xs text-gray-800 font-semibold shadow-sm leading-relaxed flex items-center min-w-[250px]">
-                                    ¿Es normal sentir náuseas por la mañana?
-                                </div>
-                                <span class="text-[9px] text-gray-400 font-bold ml-1">09:33</span>
-                            </div>
-
-                            <!-- Chat Bubble Mine Large -->
-                            <div class="flex flex-col items-end gap-1 max-w-[80%] self-end ml-auto">
-                                <div
-                                    class="px-5 py-4 bg-pink-primary text-white rounded-2xl rounded-tr-sm text-xs font-bold shadow-sm leading-relaxed">
-                                    Sí, las náuseas matutinas son muy comunes durante el primer trimestre. Le recomiendo
-                                    comer pequeñas porciones frecuentemente.
-                                </div>
-                                <span class="text-[9px] text-gray-400 font-bold mr-1">09:35</span>
-                            </div>
-
-                            <!-- Chat Bubble Other -->
-                            <div class="flex flex-col items-start gap-1 max-w-[80%]">
-                                <div
-                                    class="px-5 py-3 bg-gray-100 rounded-2xl rounded-tl-sm text-xs text-gray-800 font-semibold shadow-sm leading-relaxed min-w-[200px]">
-                                    Gracias por la información
-                                </div>
-                                <span class="text-[9px] text-gray-400 font-bold ml-1">09:37</span>
-                            </div>
-
+                        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="chat-messages">
+                            <!-- Inyectado por JS -->
                         </div>
 
                         <!-- Typing Area -->
                         <div class="p-4 bg-white border-t border-gray-50 flex-shrink-0 flex items-center gap-3">
-                            <input type="text" placeholder="Escribe tu mensaje..."
-                                class="flex-1 bg-gray-50 px-5 py-3 rounded-full text-xs text-gray-600 outline-none focus:ring-1 focus:ring-pink-primary border-none">
-                            <button
-                                class="w-11 h-11 bg-pink-primary hover:bg-pink-600 text-white rounded-full flex items-center justify-center transition-colors flex-shrink-0 outline-none">
+                            <input type="text" id="chat-input" placeholder="Escribe tu mensaje..."
+                                class="flex-1 bg-gray-50 px-5 py-3 rounded-full text-xs text-gray-600 outline-none focus:ring-1 focus:ring-pink-primary border-none" disabled>
+                            <button id="send-btn"
+                                class="w-11 h-11 bg-pink-primary hover:bg-pink-600 text-white rounded-full flex items-center justify-center transition-colors flex-shrink-0 outline-none" disabled>
                                 <i data-lucide="send" class="w-4 h-4 mr-0.5 mt-0.5"></i>
                             </button>
                         </div>
@@ -281,7 +178,15 @@
         </main>
     </div>
 
+    <script>
+        window.CHAT_CONFIG = {
+            userId: {{ user_id|default('null') }},
+            idMedico: {{ id_medico|default('null') }},
+            token: "{{ token|default('') }}"
+        };
+    </script>
     <script src="{{ url_for('static', filename='js/doctor_chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/doctor-dark-mode.js') }}"></script>
 </body>
 
 </html>

@@ -72,6 +72,12 @@
                             <span>Artículos</span>
                         </a>
                     </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('admin/chats') }}" class="nav-link d-flex align-items-center gap-3">
+                            <i data-lucide="message-square" class="icon-md"></i>
+                            <span>Gestión de Chats</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <div class="p-4 border-top mt-auto mb-5 sidebar-bottom">
@@ -93,7 +99,7 @@
                         <div class="stat-icon-wrapper text-primary bg-light-primary rounded-circle mb-4">
                             <i data-lucide="users" class="icon-lg"></i>
                         </div>
-                        <h2 class="text-primary fw-bold mb-1">156</h2>
+                        <h2 class="text-primary fw-bold mb-1">{{ $stats['usuarios'] }}</h2>
                         <p class="text-muted mb-0 small">Total Usuarios</p>
                     </div>
                 </div>
@@ -102,7 +108,7 @@
                         <div class="stat-icon-wrapper text-success bg-light-success rounded-circle mb-4">
                             <i data-lucide="user-check" class="icon-lg"></i>
                         </div>
-                        <h2 class="text-success fw-bold mb-1">24</h2>
+                        <h2 class="text-success fw-bold mb-1">{{ $stats['medicos_activos'] }}</h2>
                         <p class="text-muted mb-0 small">Médicos Activos</p>
                     </div>
                 </div>
@@ -111,7 +117,7 @@
                         <div class="stat-icon-wrapper text-warning bg-light-warning rounded-circle mb-4">
                             <i data-lucide="calendar" class="icon-lg"></i>
                         </div>
-                        <h2 class="text-warning fw-bold mb-1">38</h2>
+                        <h2 class="text-warning fw-bold mb-1">{{ $stats['citas_pendientes'] }}</h2>
                         <p class="text-muted mb-0 small">Citas Pendientes</p>
                     </div>
                 </div>
@@ -120,7 +126,7 @@
                         <div class="stat-icon-wrapper text-purple bg-light-purple rounded-circle mb-4">
                             <i data-lucide="file-text" class="icon-lg"></i>
                         </div>
-                        <h2 class="text-purple fw-bold mb-1">67</h2>
+                        <h2 class="text-purple fw-bold mb-1">{{ $stats['articulos_publicados'] }}</h2>
                         <p class="text-muted mb-0 small">Artículos Publicados</p>
                     </div>
                 </div>
@@ -129,56 +135,64 @@
             <h4 class="text-pink fw-bold mb-4">Acciones Rápidas</h4>
             <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
-                        <div class="action-icon text-pink bg-light-pink rounded-circle me-3">
-                            <i data-lucide="user-plus" class="icon-md"></i>
+                    <a href="{{ url('admin/verification') }}" class="text-decoration-none text-dark">
+                        <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
+                            <div class="action-icon text-pink bg-light-pink rounded-circle me-3">
+                                <i data-lucide="user-plus" class="icon-md"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 text-pink fw-bold d-flex align-items-center gap-2">
+                                    Verificar Médicos
+                                </h6>
+                                <small class="text-muted">Revisar solicitudes de registro</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-1 text-pink fw-bold d-flex align-items-center gap-2">
-                                Verificar Médicos <span class="badge bg-pink rounded-pill">5</span>
-                            </h6>
-                            <small class="text-muted">Revisar solicitudes de registro</small>
-                        </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-6">
-                    <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
-                        <div class="action-icon text-danger bg-light-danger rounded-circle me-3">
-                            <i data-lucide="shield" class="icon-md"></i>
+                    <a href="{{ url('admin/security') }}" class="text-decoration-none text-dark">
+                        <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
+                            <div class="action-icon text-danger bg-light-danger rounded-circle me-3">
+                                <i data-lucide="shield" class="icon-md"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 text-danger fw-bold d-flex align-items-center gap-2">
+                                    Centro de Seguridad
+                                </h6>
+                                <small class="text-muted">Gestionar restricciones</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-1 text-danger fw-bold d-flex align-items-center gap-2">
-                                Centro de Seguridad <span class="badge bg-danger rounded-pill">2</span>
-                            </h6>
-                            <small class="text-muted">Gestionar restricciones</small>
-                        </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-6">
-                    <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
-                        <div class="action-icon text-primary bg-light-primary rounded-circle me-3">
-                            <i data-lucide="users" class="icon-md"></i>
+                    <a href="{{ url('admin/users') }}" class="text-decoration-none text-dark">
+                        <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
+                            <div class="action-icon text-primary bg-light-primary rounded-circle me-3">
+                                <i data-lucide="users" class="icon-md"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 text-primary fw-bold d-flex align-items-center gap-2">
+                                    Gestión de Usuarios
+                                </h6>
+                                <small class="text-muted">CRUD completo de usuarios</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-1 text-primary fw-bold d-flex align-items-center gap-2">
-                                Gestión de Usuarios
-                            </h6>
-                            <small class="text-muted">CRUD completo de usuarios</small>
-                        </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-6">
-                    <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
-                        <div class="action-icon text-purple bg-light-purple rounded-circle me-3">
-                            <i data-lucide="file-text" class="icon-md"></i>
+                    <a href="{{ url('admin/articles') }}" class="text-decoration-none text-dark">
+                        <div class="action-card d-flex align-items-center p-4 bg-white rounded-4 border">
+                            <div class="action-icon text-purple bg-light-purple rounded-circle me-3">
+                                <i data-lucide="file-text" class="icon-md"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 text-purple fw-bold d-flex align-items-center gap-2">
+                                    Gestión de Contenido
+                                </h6>
+                                <small class="text-muted">Moderar artículos médicos</small>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="mb-1 text-purple fw-bold d-flex align-items-center gap-2">
-                                Gestión de Contenido
-                            </h6>
-                            <small class="text-muted">Moderar artículos médicos</small>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>

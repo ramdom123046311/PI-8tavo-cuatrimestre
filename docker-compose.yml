@@ -1,27 +1,69 @@
 version: "3.9"
 
 services:
-
-  laravel:
-    build: ./laravel_app
-    container_name: laravel_app
+  mysql:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 2983
+      MYSQL_DATABASE: salud_maternal
     ports:
-      - "8000:8000"
+      - "3307:3306"
     volumes:
-      - ./laravel_app:/app
+      - mysql_data:/var/lib/mysql
+    # Healthcheck real: espera a que mysqladmin responda antes de marcar el servicio como listo
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p2983"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   fastapi:
     build: ./fastapi_app
     container_name: fastapi_app
+    restart: on-failure
     ports:
       - "8001:8001"
+    depends_on:
+      mysql:
+        condition: service_healthy   # Espera al healthcheck real de MySQL
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: 2983
+      DB_NAME: salud_maternal
+      DB_PORT: 3306
     volumes:
       - ./fastapi_app:/app
 
   flask:
     build: ./flask_app
     container_name: flask_app
+    restart: on-failure
     ports:
       - "5000:5000"
+    depends_on:
+      - fastapi
+    environment:
+      API_URL: http://fastapi:8001/api
     volumes:
       - ./flask_app:/app
+
+  laravel:
+    build: ./laravel_app
+    container_name: laravel_app
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    depends_on:
+      - fastapi
+    environment:
+      API_URL: http://fastapi:8001/api
+    volumes:
+      - ./laravel_app:/app
+
+volumes:
+  mysql_data:
+

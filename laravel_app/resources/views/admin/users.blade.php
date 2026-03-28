@@ -67,6 +67,12 @@
                         </a>
                     </li>
                     <li class="nav-item mb-2">
+                        <a href="{{ url('admin/citas') }}" class="nav-link d-flex align-items-center gap-3">
+                            <i data-lucide="calendar" class="icon-md"></i>
+                            <span>Gestión de Citas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
                         <a href="{{ url('admin/articles') }}" class="nav-link d-flex align-items-center gap-3">
                             <i data-lucide="file-text" class="icon-md"></i>
                             <span>Artículos</span>
@@ -95,6 +101,13 @@
                 </button>
             </div>
 
+            @if(session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
             <!-- Table -->
             <div class="bg-white rounded-4 border overflow-hidden">
                 <table class="table table-hover mb-0 align-middle">
@@ -108,125 +121,153 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Row 1 -->
+                        @forelse($usuarios as $user)
                         <tr>
                             <td class="py-3 px-4">
                                 <div class="d-flex align-items-center gap-3">
                                     <div
-                                        class="bg-light-pink text-pink rounded-circle p-2 d-flex align-items-center justify-content-center">
-                                        <i data-lucide="user" class="icon-sm"></i>
+                                        class="bg-light-pink text-pink rounded-circle d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0"
+                                        style="width: 40px; height: 40px;">
+                                        @if($user['foto_perfil'])
+                                            <img src="{{ $user['foto_perfil'] }}" alt="{{ $user['nombre'] }}" class="w-100 h-100 object-fit-cover">
+                                        @else
+                                            <i data-lucide="user" class="icon-sm"></i>
+                                        @endif
                                     </div>
                                     <div>
-                                        <p class="fw-bold mb-0">Ana Martínez</p>
-                                        <small class="text-muted">ana.martinez@email.com</small>
+                                        <p class="fw-bold mb-0">{{ $user['nombre'] }} {{ $user['apellido_paterno'] }}</p>
+                                        <small class="text-muted">{{ $user['correo'] }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-4"><span class="badge bg-light text-dark border">Paciente</span></td>
-                            <td class="py-3 px-4"><span
-                                    class="badge bg-success-subtle text-success border border-success">Activo</span>
-                            </td>
-                            <td class="py-3 px-4 text-muted small">12 Ene 2026</td>
-                            <td class="py-3 px-4 text-end">
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
-                                    data-bs-target="#userModal" title="Editar">
-                                    <i data-lucide="edit-2" class="icon-xs"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i data-lucide="trash-2" class="icon-xs"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- Row 2 -->
-                        <tr>
                             <td class="py-3 px-4">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div
-                                        class="bg-light-primary text-primary rounded-circle p-2 d-flex align-items-center justify-content-center">
-                                        👨‍⚕️
-                                    </div>
-                                    <div>
-                                        <p class="fw-bold mb-0">Dr. Roberto Sánchez</p>
-                                        <small class="text-muted">roberto.sanchez@email.com</small>
-                                    </div>
-                                </div>
+                                <span class="badge bg-light text-{{ $user['id_rol'] == 2 ? 'primary' : 'dark' }} border">
+                                    {{ $user['id_rol'] == 1 ? 'Paciente' : ($user['id_rol'] == 2 ? 'Médico' : 'Admin') }}
+                                </span>
                             </td>
-                            <td class="py-3 px-4"><span
-                                    class="badge bg-light text-primary border border-primary">Médico</span></td>
-                            <td class="py-3 px-4"><span
-                                    class="badge bg-success-subtle text-success border border-success">Activo</span>
+                            <td class="py-3 px-4">
+                                <span class="badge bg-{{ $user['estatus'] == 1 ? 'success' : 'danger' }}-subtle text-{{ $user['estatus'] == 1 ? 'success' : 'danger' }} border border-{{ $user['estatus'] == 1 ? 'success' : 'danger' }}">
+                                    {{ $user['estatus'] == 1 ? 'Activo' : 'Inactivo' }}
+                                </span>
                             </td>
-                            <td class="py-3 px-4 text-muted small">15 Ene 2026</td>
+                            <td class="py-3 px-4 text-muted small">{{ substr($user['fecha_registro'] ?? '', 0, 10) }}</td>
                             <td class="py-3 px-4 text-end">
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
-                                    data-bs-target="#userModal" title="Editar">
+                                    data-bs-target="#userModalEdit{{ $user['id_usuario'] }}" title="Editar">
                                     <i data-lucide="edit-2" class="icon-xs"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                    <i data-lucide="trash-2" class="icon-xs"></i>
-                                </button>
+                                <form action="{{ url('admin/users/'.$user['id_usuario'].'/delete') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">
+                                        <i data-lucide="trash-2" class="icon-xs"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
+
+                        <!-- Modal Edit User -->
+                        <div class="modal fade" id="userModalEdit{{ $user['id_usuario'] }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 text-start">
+                                    <div class="modal-header border-bottom-0 pb-0">
+                                        <h5 class="modal-title text-pink fw-bold">Editar Usuario</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ url('admin/users/'.$user['id_usuario'].'/update') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted small fw-bold">Nombre</label>
+                                                <input type="text" name="nombre" class="form-control rounded-3" value="{{ $user['nombre'] }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted small fw-bold">Apellido Paterno</label>
+                                                <input type="text" name="apellido_paterno" class="form-control rounded-3" value="{{ $user['apellido_paterno'] }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted small fw-bold">Teléfono</label>
+                                                <input type="text" name="telefono" class="form-control rounded-3" value="{{ $user['telefono'] ?? '' }}">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-muted small fw-bold">Estatus</label>
+                                                <select name="estatus" class="form-control rounded-3">
+                                                    <option value="1" {{ $user['estatus'] == 1 ? 'selected' : '' }}>Activo</option>
+                                                    <option value="0" {{ $user['estatus'] == 0 ? 'selected' : '' }}>Inactivo</option>
+                                                </select>
+                                            </div>
+                                            <!-- Nota: Correo no es editable según endpoints de FastAPI actuales via PATCH -->
+                                        </div>
+                                        <div class="modal-footer border-top-0 pt-0">
+                                            <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-pink rounded-3 px-4">Actualizar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No hay usuarios registrados.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Modal Added/Edit User -->
+    <!-- Modal Nuevo User -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0">
                 <div class="modal-header border-bottom-0 pb-0">
-                    <h5 class="modal-title text-pink fw-bold" id="userModalLabel">Gestión de Usuario</h5>
+                    <h5 class="modal-title text-pink fw-bold" id="userModalLabel">Nuevo Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold">Nombre Completo</label>
-                            <input type="text" class="form-control rounded-3" placeholder="Ej. Juan Pérez" required>
+                <form action="{{ url('admin/users') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Nombre</label>
+                                <input type="text" name="nombre" class="form-control rounded-3" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Apellido Paterno</label>
+                                <input type="text" name="apellido_paterno" class="form-control rounded-3" required>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">Correo Electrónico</label>
-                            <input type="email" class="form-control rounded-3" placeholder="correo@ejemplo.com"
-                                required>
+                            <input type="email" name="correo" class="form-control rounded-3" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Contraseña</label>
+                            <input type="password" name="contrasena" class="form-control rounded-3" required>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-muted small fw-bold">Rol</label>
-                                <select class="form-select rounded-3">
-                                    <option value="paciente">Paciente</option>
-                                    <option value="medico">Médico</option>
-                                    <option value="admin">Administrador</option>
+                                <select name="id_rol" class="form-select rounded-3">
+                                    <option value="1">Paciente</option>
+                                    <option value="2">Médico</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted small fw-bold">Estado</label>
-                                <select class="form-select rounded-3">
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                    <option value="suspendido">Suspendido</option>
+                                <label class="form-label text-muted small fw-bold">Género</label>
+                                <select name="genero" class="form-select rounded-3">
+                                    <option value="F">Femenino</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="O">Otro</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-3 border rounded-3 p-3 bg-light d-none" id="medicalFields">
-                            <h6 class="fw-bold mb-3 text-dark">Información Médica</h6>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Especialidad</label>
-                                <input type="text" class="form-control rounded-3" placeholder="Ej. Ginecología">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Cédula Profesional</label>
-                                <input type="text" class="form-control rounded-3" placeholder="Ej. COL-123456">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-pink rounded-3 px-4">Guardar</button>
-                </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-pink rounded-3 px-4">Guardar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

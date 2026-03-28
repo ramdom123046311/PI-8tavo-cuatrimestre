@@ -9,9 +9,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor-dark-mode.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor_patients.css') }}">
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- pdf generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body class="bg-pink-light font-nunito flex min-h-screen" x-data="{ sidebarOpen: false }">
@@ -41,13 +44,17 @@
         </div>
 
         <!-- User Info -->
-        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="user" class="w-4 h-4"></i>
+        <div class="px-6 py-4 border-b border-gray-50 flex items-center gap-3 bg-white">
+            <div class="w-10 h-10 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {% if session.get('tiene_foto') %}
+                    <img src="{{ url_for('doctor_avatar') }}" alt="avatar" class="w-10 h-10 object-cover rounded-full">
+                {% else %}
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                {% endif %}
             </div>
             <div>
-                <p class="text-[11px] font-bold text-gray-800">Dr. Carlos Ramírez</p>
-                <p class="text-[9px] text-gray-500">doctor@demo.com</p>
+                <p class="text-[11px] font-bold text-gray-800">Dr(a). {{ session.get('nombre', 'Médico') }}</p>
+                <p class="text-[9px] text-gray-500">{{ session.get('correo', 'correo@demo.com') }}</p>
             </div>
         </div>
 
@@ -56,6 +63,10 @@
             <a href="/doctor/dashboard"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
                 <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Inicio
+            </a>
+            <a href="/doctor/profile"
+                class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> Mis Datos
             </a>
             <a href="/doctor/appointments"
                 class="flex items-center gap-3 px-4 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-semibold">
@@ -75,8 +86,14 @@
             </a>
         </nav>
 
-        <div class="p-6 w-full">
-            <a href="/login"
+        <div class="p-6 w-full space-y-3">
+            <button id="dark-toggle-btn" type="button"
+                class="flex items-center justify-center gap-2 px-4 py-2 w-full text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                data-dark="false" data-label="label">
+                <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                <span data-label="true">Modo Oscuro</span>
+            </button>
+            <a href="/logout"
                 class="flex items-center justify-center gap-2 px-4 py-2 w-full text-[11px] font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
                 <i data-lucide="log-out" class="w-3 h-3"></i> Cerrar Sesión
             </a>
@@ -119,111 +136,59 @@
 
                 <div class="space-y-6 max-w-5xl">
 
-                    <!-- Patient 1 -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="flex gap-4 items-center">
-                                <div
-                                    class="w-12 h-12 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="user" class="w-5 h-5"></i>
+                    {% if pacientes %}
+                        {% for pt in pacientes %}
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col" id="patient-record-{{ pt.id_usuario }}">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex gap-4 items-center">
+                                    <div class="w-12 h-12 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="user" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-pink-primary text-sm">{{ pt.nombre_completo }}</h3>
+                                        <p class="text-xs text-gray-500 font-semibold">Paciente #{{ pt.id_usuario }}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 class="font-bold text-pink-primary text-sm">María González</h3>
-                                    <p class="text-xs text-gray-500 font-semibold">28 años</p>
-                                </div>
+                                <button onclick="downloadReport({{ pt.id_usuario }}, '{{ pt.nombre_completo }}')"
+                                    class="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar Reporte (PDF)
+                                </button>
                             </div>
-                            <button
-                                class="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Editar
-                            </button>
-                        </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-6 border-b border-gray-50 pb-6">
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Última Visita</p>
-                                <p class="text-sm font-bold text-gray-800">15/02/2026</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Próxima Cita</p>
-                                <p class="text-sm font-bold text-gray-800">15/03/2026</p>
-                            </div>
-                        </div>
+                            <div class="report-content" id="report-content-{{ pt.id_usuario }}">
+                                <h4 class="text-lg font-bold text-gray-800 mb-4 hidden print-title">Reporte Clínico: {{ pt.nombre_completo }}</h4>
 
-                        <div class="space-y-3 mb-6">
-                            <div class="bg-pink-light p-4 rounded-xl">
-                                <p class="text-[10px] text-gray-500 font-bold tracking-wide uppercase mb-1">Diagnóstico
-                                </p>
-                                <p class="text-xs text-gray-800 font-semibold">Embarazo de 20 semanas, evolución normal
-                                </p>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-xl">
-                                <p class="text-[10px] text-gray-500 font-bold tracking-wide uppercase mb-1">Notas
-                                    Clínicas</p>
-                                <p class="text-xs text-gray-800 font-semibold">Presión arterial controlada. Suplemento
-                                    de hierro prescrito.</p>
-                            </div>
-                        </div>
+                                {% if pt.citas_con_diagnostico %}
+                                    {% for diag in pt.citas_con_diagnostico %}
+                                    <div class="mb-6 border border-gray-100 rounded-xl p-4 bg-gray-50">
+                                        <div class="grid grid-cols-2 gap-4 mb-4 border-b border-gray-200 pb-4">
+                                            <div>
+                                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Fecha Confirmada de Cita</p>
+                                                <p class="text-sm font-bold text-gray-800">{{ diag.fecha_cita }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Motivo Consulta</p>
+                                                <p class="text-sm font-bold text-gray-800">{{ diag.motivo }}</p>
+                                            </div>
+                                        </div>
 
-                        <div class="flex">
-                            <button
-                                class="flex items-center gap-1.5 text-xs font-bold text-pink-primary hover:opacity-80 transition-opacity">
-                                <i data-lucide="file-text" class="w-4 h-4"></i> Ver Historial Completo
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Patient 2 -->
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="flex gap-4 items-center">
-                                <div
-                                    class="w-12 h-12 rounded-full bg-pink-50 text-purple-700 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="user" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-pink-primary text-sm">Carmen López</h3>
-                                    <p class="text-xs text-gray-500 font-semibold">32 años</p>
-                                </div>
-                            </div>
-                            <button
-                                class="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-pink-primary border border-pink-primary rounded-lg hover:bg-pink-50 transition-colors">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Editar
-                            </button>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-6 border-b border-gray-50 pb-6">
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Última Visita</p>
-                                <p class="text-sm font-bold text-gray-800">18/02/2026</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-gray-400 font-bold tracking-wide uppercase">Próxima Cita</p>
-                                <p class="text-sm font-bold text-gray-800">18/03/2026</p>
+                                        <div class="space-y-3">
+                                            <div class="bg-pink-light p-4 rounded-xl">
+                                                <p class="text-[10px] text-gray-500 font-bold tracking-wide uppercase mb-1">Diagnóstico ({{ diag.fecha_diagnostico[:10] if diag.fecha_diagnostico else 'Reciente' }})</p>
+                                                <p class="text-xs text-gray-800 font-semibold whitespace-pre-line">{{ diag.descripcion }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-sm text-gray-500">Sin diagnósticos registrados aún.</p>
+                                {% endif %}
                             </div>
                         </div>
-
-                        <div class="space-y-3 mb-6">
-                            <div class="bg-pink-light p-4 rounded-xl">
-                                <p class="text-[10px] text-gray-500 font-bold tracking-wide uppercase mb-1">Diagnóstico
-                                </p>
-                                <p class="text-xs text-gray-800 font-semibold">Embarazo de 14 semanas, náuseas matutinas
-                                </p>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-xl">
-                                <p class="text-[10px] text-gray-500 font-bold tracking-wide uppercase mb-1">Notas
-                                    Clínicas</p>
-                                <p class="text-xs text-gray-800 font-semibold">Dieta blanda recomendada. Monitorizar
-                                    hidratación.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex">
-                            <button
-                                class="flex items-center gap-1.5 text-xs font-bold text-pink-primary hover:opacity-80 transition-opacity">
-                                <i data-lucide="file-text" class="w-4 h-4"></i> Ver Historial Completo
-                            </button>
-                        </div>
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 text-sm">No hay pacientes con citas confirmadas ni diagnósticos.</p>
+                    {% endif %}
 
                 </div>
 
@@ -232,6 +197,30 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/doctor_patients.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/doctor-dark-mode.js') }}"></script>
+    <script>
+        function downloadReport(id, nombre) {
+            const element = document.getElementById('report-content-' + id);
+            
+            // Un-hide title simply for printing
+            const title = element.querySelector('.print-title');
+            if(title) title.classList.remove('hidden');
+
+            const opt = {
+              margin:       0.5,
+              filename:     'Reporte_Clinico_' + nombre.replace(/\s+/g, '_') + '.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // New Promise-based usage:
+            html2pdf().set(opt).from(element).save().then(() => {
+                // hide the title again after converting
+                if(title) title.classList.add('hidden');
+            });
+        }
+    </script>
 </body>
 
 </html>
